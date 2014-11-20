@@ -1,4 +1,4 @@
-* ShareJS File Menu
+* Multi User File Menu
 Provides some UI controls and a search box for managing documents. These controls resemble the familiar controls you might find in a file menu.
 
 Note that there is no directory abstraction - only a flat space full of file names.
