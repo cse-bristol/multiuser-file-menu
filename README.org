@@ -1,0 +1,80 @@
+* ShareJS File Menu
+Provides some UI controls and a search box for managing documents. These controls resemble the familiar controls you might find in a file menu.
+
+Note that there is no directory abstraction - only a flat space full of file names.
+
+For use in conjunction with [[http://sharejs.org/][ShareJS]]. Requires a running ShareJS server to actually save or open any documents, so read up on that first.
+
+** Future Development
+ 1. Look more into the security of the Sharejs query API. Restrict as appropriate.
+ 2. Parameterize which menu items will display.
+
+** Run the Demo
+First, clone the repository:
+#+BEGIN_SRC sh
+  git clone git@github.com:cse-bristol/sharejs-file-menu.git
+#+END_SRC
+
+Our Javascript files our arranged as node.js modules, and we use the 'browserify' tool to combine them into a single file.
+
+Install [[http://nodejs.org/][Node JS]]. On a Debian-based system, I'd recommend using this PPA:
+#+BEGIN_SRC sh
+sudo add-apt-repository ppa:chris-lea/node.js 
+sudo aptitude update
+sudo aptitude install -y nodejs
+#+END_SRC
+
+Next, install browserify using Node's package manager npm:
+#+BEGIN_SRC sh
+  npm -g install browserify # Install Browserify as a command you can run from your shell.
+#+END_SRC
+
+Run 'make', or run the appropriate commands manually if you do not have it:
+#+BEGIN_SRC sh
+  # On Linux, Mac OS, BSD etc., or from mingw32/Git Bash
+
+  make # Runs the build target, which will execute the commands below for you.
+
+  # On Windows (if you don't have mingw32).
+
+  npm install # Install the various packages we depend on (listed in package.json).
+  browserify process-model.js -o bin/main.js # Package all the Javascript code together in a way that we can load into a browser.
+#+END_SRC
+
+Serve index.html using any web server. For example, using python3 on a Debian system:
+#+BEGIN_SRC sh
+  sudo python3 -m http.server 80 &
+#+END_SRC
+
+*** Pitfalls
+The demo expects to see a ShareJS server running on the some domain at the address /channel. You can modify this by passing a complete url as the last parameter when creating the menu.
+
+If you are unable to make the server example from the ShareJS website work, here is another [[https://github.com/cse-bristol/process-model/tree/master/server][example ShareJS server]] which you can run as follows:
+#+BEGIN_SRC sh
+  npm install;
+  node server.js;
+#+END_SRC
+
+I use nginx with the following configuration to serve both on the same port (this still requires a ShareJS server to be running on port 8080):
+#+BEGIN_SRC conf
+  server {
+         listen 80;
+         server_name localhost;
+         index index.html;
+
+         # Serve the demo page.
+         location /sharejs-file-menu {
+                  root: /home/my-user-name/sharejs-file-menu
+         }
+
+         # Redirect to the ShareJS server.
+         location /channel {
+                  proxy_pass http://localhost:8080;
+          }
+  }
+#+END_SRC
+
+
+
+** Source Code
+[[https://github.com/cse-bristol/sharejs-file-menu][Get the source code.]]

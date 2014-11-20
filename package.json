@@ -1,0 +1,21 @@
+{
+    "name": "sharejs-file-menu",
+    "version": "0.1.0",
+    "description": "Provides a UI control with some standard file operations (new, open, save as, insert, delete) for use with sharejs.",
+    "keywords": ["sharejs", "concurrent", "collaborative", "d3", "ot", "operational transform"],
+    "url": "https://github.com/cse-bristol/sharejs-file-menu",
+    "license": "MIT",
+    "main": "src/sharejs-file-menu.js",
+
+    "directories": {
+	"js": "js",
+	"css": "css"
+    },
+
+    "dependencies": {
+	"share": "0.7.3",
+	"lodash": "2.4.1",
+	"browserchannel": "2.0.0",
+	"d3": "3.4.13"
+    }
+}
