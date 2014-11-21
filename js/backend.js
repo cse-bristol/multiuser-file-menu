@@ -36,7 +36,9 @@ module.exports = function(coll, url) {
 
 	load: function(name, callback) {
 	    var doc = connection.get(coll, name.toLowerCase());
-	    doc.subscribe();
+	    if (!doc.subscribed) {
+		doc.subscribe();
+	    }
 	    doc.whenReady(function() {
 		callback(doc);
 	    });
@@ -44,7 +46,9 @@ module.exports = function(coll, url) {
 
 	deleteDoc: function(name) {
 	    var toDelete = connection.get(coll, name.toLowerCase());
-	    toDelete.subscribe();
+	    if (!toDelete.subscribed) {
+		toDelete.subscribe();
+	    }
 	    toDelete.whenReady(function() {
 		toDelete.del();
 		toDelete.destroy();
