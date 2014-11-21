@@ -59,7 +59,7 @@ module.exports = function(container, searchFunction) {
 		title,
 		function() {
 		    clearActive();
-		    callback(arguments);
+		    callback.apply(this, arguments);
 		},
 		clearActive
 	    );
