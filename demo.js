@@ -21,6 +21,7 @@ var d3 = require("d3"),
 	return o;
     },
     menu = require("./js/index.js")(
+	"demo",
 	body,
 	identity,
 	identity,

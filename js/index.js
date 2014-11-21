@@ -11,8 +11,8 @@ var backendFactory = require("./backend.js"),
 	return a.href + "channel";
     }();
 
-module.exports = function(container, serialize, deserialize, getModel, setModel, freshModel, url) {
-    var backend = backendFactory("test", url ? url : defaultUrl),
+module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, url) {
+    var backend = backendFactory(collection, url ? url : defaultUrl),
 	menu = menuFactory(container, backend.search),
 	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel);
 

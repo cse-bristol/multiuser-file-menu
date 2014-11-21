@@ -43,7 +43,7 @@ module.exports = function(container, searchFunction) {
      
      The clicked button will be highlighted while this is going on.
      */
-    var withSearch = function(alwaysIncludeSearchText, callback) {
+    var withSearch = function(alwaysIncludeSearchText, forbidEmpty, callback) {
 	return function(button) {
 	    if (lastSearch) {
 		lastSearch.hide();
@@ -56,6 +56,7 @@ module.exports = function(container, searchFunction) {
 		container,
 		searchFunction,
 		alwaysIncludeSearchText,
+		forbidEmpty,
 		title,
 		function() {
 		    clearActive();
@@ -79,18 +80,18 @@ module.exports = function(container, searchFunction) {
     var buttons = d3.map({
 	New: newDoc,
 	
-	Open: withSearch(false, open),
+	Open: withSearch(false, false, open),
 	
-	"Save as": withSearch(true, function(result) {
+	"Save as": withSearch(true, true, function(result) {
 	    setTitle(result, false);
 	    onSaveAs(result);
 	}),
 	
-	Insert: withSearch(false, function(result) {
+	Insert: withSearch(false, false, function(result) {
 	    onInsert(result);
 	}),
 	
-	Delete: withSearch(false, function(result) {
+	Delete: withSearch(false, false, function(result) {
 	    if (result === title) {
 		setTitle(guid(), true);
 		onNew(title);
