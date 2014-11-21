@@ -12,7 +12,7 @@ var _ = require("lodash"),
 
  Keeps track of the open sharejs document.
  */
-module.exports = function(backend, documentControl, serialize, deserialize, getModel, setModel, freshModel) {
+module.exports = function(backend, documentControl, serialize, deserialize, getModel, setModel, freshModel, mergeModel) {
     var doc,
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
@@ -74,7 +74,7 @@ module.exports = function(backend, documentControl, serialize, deserialize, getM
 		try {
 		    var snapshot = loaded.getSnapshot();
 		    if (snapshot) {
-			getModel().merge(
+			mergeModel(
 			    deserialize(snapshot)
 			);
 		    } else {

@@ -36,6 +36,10 @@ var d3 = require("d3"),
 	    return {
 		text: "type here"
 	    };
+	},
+	function(newModel) {
+	    model.text = model.text + " " + newModel.text;
+	    text.node().value = model.text;
 	});
 
 text.node().value = model.text;

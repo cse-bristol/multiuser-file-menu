@@ -11,10 +11,10 @@ var backendFactory = require("./backend.js"),
 	return a.href + "channel";
     }();
 
-module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, url) {
+module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, mergeModel, url) {
     var backend = backendFactory(collection, url ? url : defaultUrl),
 	menu = menuFactory(container, backend.search),
-	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel);
+	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel, mergeModel);
 
     return {
 	backend: backend,
