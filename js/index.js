@@ -5,6 +5,7 @@
 var backendFactory = require("./backend.js"),
     menuFactory = require("./menu.js"),
     storeFactory = require("./store.js"),
+    queryStringFactory = require("./query-string.js"),
     defaultUrl = function() {
 	var a = document.createElement("a");
 	a.href = "/";
@@ -14,12 +15,14 @@ var backendFactory = require("./backend.js"),
 module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, mergeModel, url) {
     var backend = backendFactory(collection, url ? url : defaultUrl),
 	menu = menuFactory(container, backend.search),
-	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel, mergeModel);
+	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel, mergeModel),
+	queryString = queryStringFactory(menu, collection);
 
     return {
 	backend: backend,
 	menu: menu,
-	store: store
+	store: store,
+	queryString: queryString
     };
 	
 };
