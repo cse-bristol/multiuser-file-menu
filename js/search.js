@@ -56,10 +56,6 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
     var doSearch = function() {
 	var val = getSearchValue();
 
-	if (val === "") {
-	    return;
-	}
-	
 	searchFunction(val, function(names) {
 	    var addedVal = false;
 	    
@@ -104,6 +100,10 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
 
     var doSearchSoonish = _.debounce(doSearch, 500);
 
+    /*
+     Fill the box with some initial values.
+     */
+    doSearch();
     search.node().focus();
 
     return {
