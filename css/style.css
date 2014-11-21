@@ -74,3 +74,9 @@ a.document-control-button {
 .search-result-fabricated {
     background-color: pink;
 }
+
+.active {
+    opacity: 1.0;
+    background-color: #181818;
+    color: white;
+}

@@ -15,6 +15,7 @@ module.exports = function(container, searchFunction) {
     var title = null,
 	temp = false,
 	lastSearch = null,
+	activeButton = null,
 	onNew = callbacks(),
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
@@ -29,13 +30,39 @@ module.exports = function(container, searchFunction) {
 	temp = newTemp;
 	jsonExport.attr("download", title + ".json");
     };
-    
+
+    var clearActive = function(button) {
+	if (activeButton) {
+	    activeButton.classed("active", false);
+	    activeButton = null;
+	}
+    };
+
+    /*
+     Run a search, then execute a command once a search item is clicked.
+     
+     The clicked button will be highlighted while this is going on.
+     */
     var withSearch = function(alwaysIncludeSearchText, callback) {
-	return function() {
+	return function(button) {
 	    if (lastSearch) {
 		lastSearch.hide();
 	    }
-	    lastSearch = search(container, searchFunction, alwaysIncludeSearchText, title, callback);
+	    clearActive();
+	    activeButton = button;
+	    activeButton.classed("active", true);
+	    
+	    lastSearch = search(
+		container,
+		searchFunction,
+		alwaysIncludeSearchText,
+		title,
+		function() {
+		    clearActive();
+		    callback(arguments);
+		},
+		clearActive
+	    );
 	};
     };
 
@@ -81,7 +108,7 @@ module.exports = function(container, searchFunction) {
 	    return d;
 	})
 	.on("click", function(d, i) {
-	    buttons.get(d)();
+	    buttons.get(d)(d3.select(this));
 	});
 
     var jsonExport = container.append("a")

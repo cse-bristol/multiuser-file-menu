@@ -13,7 +13,7 @@ var callbacks = require("./helpers.js").callbackHandler,
 
  currentPage will have the class .search-result-current-page.
  */
-module.exports = function(container, searchFunction, alwaysIncludeSearchText, currentPage, callback) {
+module.exports = function(container, searchFunction, alwaysIncludeSearchText, currentPage, callback, onHide) {
     var form = container
 	    .append("form")
 	    .attr("id", "search-control")
@@ -31,6 +31,7 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
     var hideResults = function(delay) {
 	var maybeTransition = delay ? form.transition().delay(delay) : form;
 	maybeTransition.remove();
+	onHide();
     };
 
     var search = form.append("input")
