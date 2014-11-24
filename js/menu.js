@@ -11,7 +11,7 @@ var d3 = require("d3"),
 /*
  Provides UI buttons to manage documents.
  */
-module.exports = function(container, searchFunction) {
+module.exports = function(container, searchFunction, onUp, onDown, isUp) {
     var title = null,
 	temp = false,
 	lastSearch = null,
@@ -20,7 +20,8 @@ module.exports = function(container, searchFunction) {
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
 	onInsert = callbacks(),
-	onDelete = callbacks();
+	onDelete = callbacks(),
+	jsonExport;
 
     var setTitle = function(newTitle, newTemp) {
 	if (temp) {
@@ -31,11 +32,29 @@ module.exports = function(container, searchFunction) {
 	jsonExport.attr("download", title + ".json");
     };
 
-    var clearActive = function(button) {
+    var clearActive = function() {
 	if (activeButton) {
 	    activeButton.classed("active", false);
 	    activeButton = null;
 	}
+    };
+
+    var hideSearch = function() {
+	if (lastSearch) {
+	    lastSearch.hide();
+	    lastSearch = null;
+	}
+    };
+    
+    var enable = function() {
+	container.classed("offline", false);
+    };
+
+    var disable = function() {
+	hideSearch();
+	clearActive();
+
+	container.classed("offline", true);
     };
 
     /*
@@ -45,9 +64,7 @@ module.exports = function(container, searchFunction) {
      */
     var withSearch = function(alwaysIncludeSearchText, forbidEmpty, callback) {
 	return function(button) {
-	    if (lastSearch) {
-		lastSearch.hide();
-	    }
+	    hideSearch();
 	    clearActive();
 	    activeButton = button;
 	    activeButton.classed("active", true);
@@ -77,45 +94,90 @@ module.exports = function(container, searchFunction) {
 	onOpen(name);
     };
     
-    var buttons = d3.map({
-	New: newDoc,
+    var buttonSpec = [
+	{
+	    text: "New",
+	    f: newDoc,
+	    onlineOnly: false
+	},
 	
-	Open: withSearch(false, false, open),
-	
-	"Save as": withSearch(true, true, function(result) {
-	    setTitle(result, false);
-	    onSaveAs(result);
-	}),
-	
-	Insert: withSearch(false, false, function(result) {
-	    onInsert(result);
-	}),
-	
-	Delete: withSearch(false, false, function(result) {
-	    if (result === title) {
-		setTitle(guid(), true);
-		onNew(title);
-	    }		
-		onDelete(result);
-	})
-    });
+	{
+	    text: "Open",
+	    f: withSearch(false, false, open),
+	    onlineOnly: true
+	},
 
-    container.selectAll("div.document-control-button")
-	.data(buttons.keys())
+	{
+	    text: "Save as",
+	    f: withSearch(true, true, function(result) {
+		setTitle(result, false);
+		onSaveAs(result);
+	    }),
+	    onlineOnly: true
+	},
+
+	{
+	    text: "Insert",
+	    f: withSearch(false, false, function(result) {
+		onInsert(result);
+	    }),
+	    onlineOnly: true
+	},
+
+	{
+	    text: "Delete",
+	    f: withSearch(false, false, function(result) {
+		if (result === title) {
+		    setTitle(guid(), true);
+		    onNew(title);
+		}		
+		onDelete(result);
+	    }),
+	    onlineOnly: true
+	},
+
+	{
+	    text: "Export",
+	    f: function() {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+	    },
+	    onlineOnly: false
+	}
+    ];
+
+    var buttons = container.selectAll("div.document-control-button")
+	.data(buttonSpec)
 	.enter()
-	.append("div")
+	    .append("div")
+    	.classed("document-control-item", true)
 	.classed("document-control-button", true)
 	.text(function(d, i) {
-	    return d;
+	    return d.text;
+	})
+	.classed("online-only", function(d, i) {
+	    return d.onlineOnly;
 	})
 	.on("click", function(d, i) {
-	    buttons.get(d)(d3.select(this));
+	    d.f(d3.select(this));
 	});
 
-    var jsonExport = container.append("a")
-	    .classed("document-control-button", true)
-	    .text("Export")
-	    .attr("href", "javascript:void(0)");
+    jsonExport = buttons.filter(function(d, i) {
+	return d.text === "Export";
+    });
+
+    container.append("div")
+	.classed("offline-only", true)
+        .classed("document-control-item", true)
+	.text("Offline");
+
+    onUp(enable);
+    onDown(disable);
+    if (isUp()) {
+	enable();
+    } else {
+	disable();
+    }
 
     return {
 	newDoc: newDoc,

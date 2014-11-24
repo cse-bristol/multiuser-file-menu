@@ -4,7 +4,9 @@
 
 var _ = require("lodash"),
     sharejs = require('../node_modules/share/lib/client/index.js'),
-    BCSocket = require('../node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket;
+    BCSocket = require('../node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
+    helpers = require("./helpers.js"),
+    callbacks = helpers.callbackHandler;
 
 /*
  Connects to a sharejs server.
@@ -18,9 +20,26 @@ module.exports = function(coll, url) {
 	    {
 		reconnect: true
 	    })
-    );
+    ),
+	onUp = callbacks(),
+	onDown = callbacks(),
+	isUp = function(state) {
+	    return state === "connected" || state === "connecting";
+	};
 
+    // TODO remove this once we're happy.
     connection.debug = true;
+
+    ["connected", "connecting", "disconnected", "stopped"]
+	.forEach(function(state) {
+	    connection.on(state, function() {
+		if (isUp(state)) {
+		    onUp();
+		} else {
+		    onDown();
+		}
+	    });
+	});
 
     return {
 	search: function(text, callback, errback) {
@@ -53,6 +72,12 @@ module.exports = function(coll, url) {
 		toDelete.del();
 		toDelete.destroy();
 	    });
+	},
+
+	onUp: onUp.add,
+	onDown: onDown.add,
+	isUp: function() {
+	    return connection && isUp(connection.state);
 	}
     };
 };

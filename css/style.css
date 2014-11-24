@@ -1,5 +1,4 @@
-.document-control-button {
-    cursor: pointer;
+.document-control-item {
     display: inline-block;
     width: 5em;
     background-color: #E0E0E0;
@@ -9,7 +8,6 @@
     vertical-align: top;
     padding: 0.2em;
     margin: 0.1em;
-    opacity: 0.8;
 
     // Cross-browser disable text selection.
     user-select: none;
@@ -20,14 +18,40 @@
     -ms-user-select: none;    
 }
 
-.document-control-button:hover {
-    opacity: 1.0;
-    text-decoration: underline;
+.document-control-button {
+    opacity: 0.8;
+    cursor: pointer;
 }
 
 a.document-control-button {
     text-decoration: none;
     color: black;
+}
+
+.document-control-button:hover {
+    opacity: 1.0;
+    text-decoration: underline;
+}
+
+.active {
+    opacity: 1.0;
+    background-color: #181818;
+    color: white;
+}
+
+.offline .online-only {
+    display: none;
+}
+
+.offline-only {
+    display: none;
+    cursor: default;
+    background: white;
+    color: red;
+}
+
+.offline .offline-only {
+    display: inline-block;
 }
 
 #search-control {
@@ -73,10 +97,4 @@ a.document-control-button {
 
 .search-result-fabricated {
     background-color: pink;
-}
-
-.active {
-    opacity: 1.0;
-    background-color: #181818;
-    color: white;
 }

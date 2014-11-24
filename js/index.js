@@ -14,7 +14,7 @@ var backendFactory = require("./backend.js"),
 
 module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, mergeModel, url) {
     var backend = backendFactory(collection, url ? url : defaultUrl),
-	menu = menuFactory(container, backend.search),
+	menu = menuFactory(container, backend.search, backend.onUp, backend.onDown, backend.isUp),
 	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel, mergeModel),
 	queryString = queryStringFactory(menu, collection);
 
