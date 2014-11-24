@@ -8,9 +8,9 @@ var _ = require("lodash"),
     callbacks = helpers.callbackHandler;
 
 /*
- Translates things the user does with the document control into actions on the backend.
+ Operates on a single collection.  Keeps track of the open sharejs document for that collection. 
 
- Keeps track of the open sharejs document.
+ Translates things the user does with the document control into actions on the backend.
  */
 module.exports = function(collection, backend, documentControl, serialize, deserialize, getModel, setModel, freshModel) {
     var doc,
@@ -115,6 +115,25 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	    }
 	},
 
-	onOp: onOp.add
+	onOp: onOp.add,
+
+	loadSnapshot: function(name, callback, errback) {
+	    loadFromCollection(
+		name,
+		function(loaded) {
+		    try {
+			var snapshot = loaded.getSnapshot();
+			if (snapshot) {
+			    callback(
+				deserialize(snapshot));
+			} else {
+			    errback();
+			}
+		    } finally {
+			loaded.destroy();
+		    }
+		}
+	    );
+	}
     };
 };
