@@ -13,7 +13,7 @@ var _ = require("lodash"),
 
  Exposes some functions about it.
  */
-module.exports = function(coll, url) {
+module.exports = function(url) {
     var connection = new sharejs.Connection(
 	new BCSocket(
 	    url,
@@ -42,7 +42,7 @@ module.exports = function(coll, url) {
 	});
 
     return {
-	search: function(text, callback, errback) {
+	search: function(coll, text, callback, errback) {
 	    // TODO *insecure*. Anyone could modify the Javascript in arbitrary ways here. Can we fire this from the server side and sanitize the text variable?
 	    connection.createFetchQuery(coll, {_id: {$regex: text}}, {}, function(error, results, extraData) {
 		if (error) {
@@ -53,7 +53,7 @@ module.exports = function(coll, url) {
 	    });
 	},
 
-	load: function(name, callback) {
+	load: function(coll, name, callback) {
 	    var doc = connection.get(coll, name.toLowerCase());
 	    if (!doc.subscribed) {
 		doc.subscribe();
@@ -63,7 +63,7 @@ module.exports = function(coll, url) {
 	    });
 	},
 
-	deleteDoc: function(name) {
+	deleteDoc: function(coll, name) {
 	    var toDelete = connection.get(coll, name.toLowerCase());
 	    if (!toDelete.subscribed) {
 		toDelete.subscribe();

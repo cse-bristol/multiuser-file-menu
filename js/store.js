@@ -12,7 +12,7 @@ var _ = require("lodash"),
 
  Keeps track of the open sharejs document.
  */
-module.exports = function(backend, documentControl, serialize, deserialize, getModel, setModel, freshModel, mergeModel) {
+module.exports = function(collection, backend, documentControl, serialize, deserialize, getModel, setModel, freshModel) {
     var doc,
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
@@ -43,10 +43,14 @@ module.exports = function(backend, documentControl, serialize, deserialize, getM
 	    context = doc.createContext();
 	    
 	    writing = false;
+	},
+
+	loadFromCollection = function(name, f) {
+	    backend.load(collection, name, f);
 	};
     
     documentControl.onOpen(function(name) {
-	backend.load(
+	loadFromCollection(
 	    name,
 	    function(loaded) {
 		setDoc(loaded);
@@ -67,30 +71,12 @@ module.exports = function(backend, documentControl, serialize, deserialize, getM
 	);
     });
 
-    documentControl.onInsert(function(name) {
-	backend.load(
-	    name,
-	    function(loaded) {
-		try {
-		    var snapshot = loaded.getSnapshot();
-		    if (snapshot) {
-			mergeModel(
-			    deserialize(snapshot)
-			);
-		    } else {
-			throw new Error("Attempted to import a collection, but it has been deleted " + name);
-		    }
-		} finally {
-		    loaded.destroy();
-		}
-	    }
-	);
+    documentControl.onDelete(function(name) {
+	backend.deleteDoc(collection, name);
     });
 
-    documentControl.onDelete(backend.deleteDoc);
-
     documentControl.onSaveAs(function(name) {
-	backend.load(
+	loadFromCollection(
 	    name,
 	    function(loaded) {
 		setDoc(loaded);
@@ -104,7 +90,7 @@ module.exports = function(backend, documentControl, serialize, deserialize, getM
     });
 
     documentControl.onNew(function(name) {
-	backend.load(
+	loadFromCollection(
 	    name,
 	    function(loaded) {
 		setDoc(loaded);

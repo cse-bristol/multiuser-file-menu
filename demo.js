@@ -4,6 +4,7 @@
 
 var d3 = require("d3"),
     body = d3.select(document.body),
+    coll = "demo",
     model = {
 	text: "type here"
     },    
@@ -21,7 +22,7 @@ var d3 = require("d3"),
 	return o;
     },
     menu = require("./js/index.js")(
-	"demo",
+	coll,
 	body,
 	identity,
 	identity,
@@ -37,9 +38,22 @@ var d3 = require("d3"),
 		text: "type here"
 	    };
 	},
-	function(newModel) {
-	    model.text = model.text + " " + newModel.text;
-	    text.node().value = model.text;
-	});
+	/* 
+	 Example of how to add some extra buttons to the menu.
+	 */
+	[
+	    {
+		text: "Example",
+		onlineOnly: true,
+		search: {
+		    collection: coll,
+		    alwaysIncludeSearchTerm: true,
+		    forbidEmpty: false
+		},
+		f: function(result) {
+		    alert("Searched the test collection and found " + result);
+		}
+	    }
+	]);
 
 text.node().value = model.text;

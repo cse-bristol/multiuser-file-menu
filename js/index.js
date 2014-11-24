@@ -4,6 +4,7 @@
 
 var backendFactory = require("./backend.js"),
     menuFactory = require("./menu.js"),
+    standardButtonFactory = require("./standard-buttons.js"),
     storeFactory = require("./store.js"),
     queryStringFactory = require("./query-string.js"),
     defaultUrl = function() {
@@ -12,18 +13,28 @@ var backendFactory = require("./backend.js"),
 	return a.href + "channel";
     }();
 
-module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, mergeModel, url) {
-    var backend = backendFactory(collection, url ? url : defaultUrl),
-	menu = menuFactory(container, backend.search, backend.onUp, backend.onDown, backend.isUp),
-	store = storeFactory(backend, menu, serialize, deserialize, getModel, setModel, freshModel, mergeModel),
-	queryString = queryStringFactory(menu, collection);
+module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, extraButtons, url) {
+    var backend = backendFactory(url ? url : defaultUrl),
+	standardButtons = standardButtonFactory(collection),
+	menu = menuFactory(
+	    container,
+	    standardButtons.buttonSpec().concat(extraButtons),
+	    standardButtons.getTitle,
+	    backend.search,
+	    backend.onUp,
+	    backend.onDown,
+	    backend.isUp),
+	
+	store = storeFactory(collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
+	
+	queryString = queryStringFactory(standardButtons, collection);
 
     return {
 	backend: backend,
 	menu: menu,
 	store: store,
-	queryString: queryString
+	queryString: queryString,
+	standardButtons: standardButtons
     };
-	
 };
 

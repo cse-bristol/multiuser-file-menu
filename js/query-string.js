@@ -12,16 +12,16 @@ var d3 = require("d3"),
 
  TODO: once we have history, include the reivion number in here.
  */
-module.exports = function(menu, collection) {
+module.exports = function(standardButtons, collection) {
     var fromURL = function() {
 	var query = URL.parse(window.location.href, true).query;
 
 	if (query.name) {
 	    var title = decodeURIComponent(query.name);
-	    menu.open(title);
+	    standardButtons.open(title);
 	    document.title = title;
 	} else {
-	    menu.newDoc();
+	    standardButtons.newDoc();
 	}
     };
 
@@ -41,9 +41,9 @@ module.exports = function(menu, collection) {
 
     d3.select(window).on("popstate", fromURL);
     
-    menu.onNew(toURL);
-    menu.onOpen(toURL);
-    menu.onSaveAs(toURL);
+    standardButtons.onNew(toURL);
+    standardButtons.onOpen(toURL);
+    standardButtons.onSaveAs(toURL);
     
     fromURL();
 };

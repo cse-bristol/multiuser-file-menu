@@ -3,168 +3,106 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    search = require("./search.js"),
-    helpers = require("./helpers.js"),
-    guid = helpers.guid,
-    callbacks = helpers.callbackHandler;
+    search = require("./search.js");
 
 /*
- Provides UI buttons to manage documents.
+ Provides UI buttons based on buttonSpec, an array of objects, each with the following properties:
+
+ text: the text of the button.
+ onlineOnly: indicates that the button should be hidden if we lose connection to the server.
+ f: the action to take.
+ hooks; a function to call on the resulting button.
+
+ search: an object which indicates that we should perform a search before calling f with the result.
+ search.collection: the collection to search within.
+ search.alwaysIncludeSearchText: the text which was searched for should always be returned as a result (useful for save as).
+ search.forbidEmpty: will never execute a search against the empty string "".
+
  */
-module.exports = function(container, searchFunction, onUp, onDown, isUp) {
-    var title = null,
-	temp = false,
-	lastSearch = null,
+module.exports = function(container, buttonSpec, getTitle, searchFunction, onUp, onDown, isUp) {
+    var lastSearch = null,
 	activeButton = null,
-	onNew = callbacks(),
-	onOpen = callbacks(),
-	onSaveAs = callbacks(),
-	onInsert = callbacks(),
-	onDelete = callbacks(),
-	jsonExport;
+	buttons = container.selectAll("div.document-control-button")
+	    .data(buttonSpec)
+	    .enter()
+	    .append("div")
+    	    .classed("document-control-item", true)
+	    .classed("document-control-button", true)
+	    .text(function(d, i) {
+		return d.text;
+	    })
+	    .classed("online-only", function(d, i) {
+		return d.onlineOnly;
+	    })
+	    .on("click", function(d, i) {
+		var button = d3.select(this);
+		
+		if (d.search) {
+		    hideSearch();
+		    clearActive();
+		    activeButton = button;
+		    activeButton.classed("active", true);
+	    
+		    lastSearch = search(
+			container,
+			searchFunction,
+			d.search.collection,
+			d.search.alwaysIncludeSearchText,
+			d.search.forbidEmpty,
+			getTitle(),
+			function() {
+			    clearActive();
+			    d.f.apply(this, arguments);
+			},
+			clearActive
+ 		    );
+			
+		} else {
+		    d.f(button);
+		}
+	    })
+	    .each(function(d, i) {
+		if (d.hooks) {
+		    var el = d3.select(this);
+		    d.hooks(el);
+		}
+	    }),
 
-    var setTitle = function(newTitle, newTemp) {
-	if (temp) {
-	    onDelete(title);
-	}
-	title = newTitle;
-	temp = newTemp;
-	jsonExport.attr("download", title + ".json");
-    };
+	clearActive = function() {
+	    if (activeButton) {
+		activeButton.classed("active", false);
+		activeButton = null;
+	    }
+	},
 
-    var clearActive = function() {
-	if (activeButton) {
-	    activeButton.classed("active", false);
-	    activeButton = null;
-	}
-    };
+	hideSearch = function() {
+	    if (lastSearch) {
+		lastSearch.hide();
+		lastSearch = null;
+	    }
+	},
+	
+	enable = function() {
+	    container.classed("offline", false);
+	},
 
-    var hideSearch = function() {
-	if (lastSearch) {
-	    lastSearch.hide();
-	    lastSearch = null;
-	}
-    };
-    
-    var enable = function() {
-	container.classed("offline", false);
-    };
+	disable = function() {
+	    hideSearch();
+	    clearActive();
 
-    var disable = function() {
-	hideSearch();
-	clearActive();
-
-	container.classed("offline", true);
-    };
+	    container.classed("offline", true);
+	};
 
     /*
      Run a search, then execute a command once a search item is clicked.
      
      The clicked button will be highlighted while this is going on.
      */
-    var withSearch = function(alwaysIncludeSearchText, forbidEmpty, callback) {
+    var withSearch = function(collection, alwaysIncludeSearchText, forbidEmpty, title, callback) {
 	return function(button) {
-	    hideSearch();
-	    clearActive();
-	    activeButton = button;
-	    activeButton.classed("active", true);
 	    
-	    lastSearch = search(
-		container,
-		searchFunction,
-		alwaysIncludeSearchText,
-		forbidEmpty,
-		title,
-		function() {
-		    clearActive();
-		    callback.apply(this, arguments);
-		},
-		clearActive
-	    );
 	};
     };
-
-    var newDoc = function() {
-	setTitle(guid(), true);
-	onNew(title);
-    };
-
-    var open = function(name) {
-	setTitle(name, false);
-	onOpen(name);
-    };
-    
-    var buttonSpec = [
-	{
-	    text: "New",
-	    f: newDoc,
-	    onlineOnly: false
-	},
-	
-	{
-	    text: "Open",
-	    f: withSearch(false, false, open),
-	    onlineOnly: true
-	},
-
-	{
-	    text: "Save as",
-	    f: withSearch(true, true, function(result) {
-		setTitle(result, false);
-		onSaveAs(result);
-	    }),
-	    onlineOnly: true
-	},
-
-	{
-	    text: "Insert",
-	    f: withSearch(false, false, function(result) {
-		onInsert(result);
-	    }),
-	    onlineOnly: true
-	},
-
-	{
-	    text: "Delete",
-	    f: withSearch(false, false, function(result) {
-		if (result === title) {
-		    setTitle(guid(), true);
-		    onNew(title);
-		}		
-		onDelete(result);
-	    }),
-	    onlineOnly: true
-	},
-
-	{
-	    text: "Export",
-	    f: function() {
-		d3.event.preventDefault();
-		d3.event.stopPropagation();
-	    },
-	    onlineOnly: false
-	}
-    ];
-
-    var buttons = container.selectAll("div.document-control-button")
-	.data(buttonSpec)
-	.enter()
-	    .append("div")
-    	.classed("document-control-item", true)
-	.classed("document-control-button", true)
-	.text(function(d, i) {
-	    return d.text;
-	})
-	.classed("online-only", function(d, i) {
-	    return d.onlineOnly;
-	})
-	.on("click", function(d, i) {
-	    d.f(d3.select(this));
-	});
-
-    jsonExport = buttons.filter(function(d, i) {
-	return d.text === "Export";
-    });
 
     container.append("div")
 	.classed("offline-only", true)
@@ -178,17 +116,4 @@ module.exports = function(container, searchFunction, onUp, onDown, isUp) {
     } else {
 	disable();
     }
-
-    return {
-	newDoc: newDoc,
-	onNew: onNew.add,
-	open: open,
-	onOpen: onOpen.add,
-	onSaveAs: onSaveAs.add,
-	onInsert: onInsert.add,
-	onDelete: onDelete.add,
-	updateExportLink: function(val) {
-	    jsonExport.attr("href", val);
-	}
-    };
 };
