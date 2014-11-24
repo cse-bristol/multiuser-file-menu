@@ -15,9 +15,10 @@ var backendFactory = require("./backend.js"),
 
 module.exports = function(collection, container, serialize, deserialize, getModel, setModel, freshModel, extraButtons, url) {
     var backend = backendFactory(url ? url : defaultUrl),
-	standardButtons = standardButtonFactory(collection),
+	standardButtons = standardButtonFactory(),
 	menu = menuFactory(
 	    container,
+	    collection,
 	    standardButtons.buttonSpec().concat(extraButtons),
 	    standardButtons.getTitle,
 	    backend.search,

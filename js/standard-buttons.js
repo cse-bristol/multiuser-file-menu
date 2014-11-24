@@ -14,7 +14,7 @@ var d3 = require("d3"),
 
  Keeps track of the document title, and whether or not it is a temporary title.
  */
-module.exports = function(collection) {
+module.exports = function() {
     var title = null,
 	temp = false,
 	onTitleChange = callbacks(),
@@ -51,9 +51,7 @@ module.exports = function(collection) {
 	
 	{
 	    text: "Open",
-	    search: {
-		collection: collection
-	    },
+	    search: {},
 	    f: open,
 	    onlineOnly: true
 	},
@@ -61,7 +59,6 @@ module.exports = function(collection) {
 	{
 	    text: "Save as",
 	    search: {
-		collection: collection,
 		alwaysIncludeSearchText: true,
 		forbidEmpty: true
 	    },
@@ -74,9 +71,7 @@ module.exports = function(collection) {
 
 	{
 	    text: "Delete",
-	    search: {
-		collection: collection
-	    },
+	    search: {},
 	    f: function(result) {
 		if (result === title) {
 		    setTitle(guid(), true);

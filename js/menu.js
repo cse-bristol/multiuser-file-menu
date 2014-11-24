@@ -6,20 +6,20 @@ var d3 = require("d3"),
     search = require("./search.js");
 
 /*
- Provides UI buttons based on buttonSpec, an array of objects, each with the following properties:
+ Provides UI buttons based on buttonSpec, an array of objects, each with the following properties (square brackets [] indicate optional properties):
 
  text: the text of the button.
- onlineOnly: indicates that the button should be hidden if we lose connection to the server.
- f: the action to take.
- hooks; a function to call on the resulting button.
+ [onlineOnly]: if true, the button will be hidden if we lose connection to the server.
+ f: a function to be called when the button is clicked or the search returns.
+ [hooks]; a function to call on the resulting button.
 
- search: an object which indicates that we should perform a search before calling f with the result.
- search.collection: the collection to search within.
- search.alwaysIncludeSearchText: the text which was searched for should always be returned as a result (useful for save as).
- search.forbidEmpty: will never execute a search against the empty string "".
+ [search]: an object which indicates that we should perform a search before calling f with the result.
+ [search.collection]: a string indicating the collection to be search against. If not specified, search against the default collection.
+ [search.alwaysIncludeSearchText]: if true, the text which was searched for should always be returned as a result (useful for save as).
+ [search.forbidEmpty]: if true, never execute a search against the empty string "".
 
  */
-module.exports = function(container, buttonSpec, getTitle, searchFunction, onUp, onDown, isUp) {
+module.exports = function(container, collection, buttonSpec, getTitle, searchFunction, onUp, onDown, isUp) {
     var lastSearch = null,
 	activeButton = null,
 	buttons = container.selectAll("div.document-control-button")
@@ -46,7 +46,7 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, onUp,
 		    lastSearch = search(
 			container,
 			searchFunction,
-			d.search.collection,
+			d.search.collection ? d.search.collection : collection,
 			d.search.alwaysIncludeSearchText,
 			d.search.forbidEmpty,
 			getTitle(),
