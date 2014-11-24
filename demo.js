@@ -23,7 +23,6 @@ var d3 = require("d3"),
     },
     menu = require("./js/index.js")(
 	coll,
-	body,
 	identity,
 	identity,
 	function() {
@@ -37,23 +36,44 @@ var d3 = require("d3"),
 	    return {
 		text: "type here"
 	    };
-	},
-	/* 
-	 Example of how to add some extra buttons to the menu.
-	 */
-	[
-	    {
-		text: "Example",
-		onlineOnly: true,
-		search: {
-		    collection: coll,
-		    alwaysIncludeSearchTerm: true,
-		    forbidEmpty: false
-		},
-		f: function(result) {
-		    alert("Searched the test collection and found " + result);
-		}
+	});
+
+menu.buildMenu(
+    body,
+    /* 
+     Example of how to add some extra buttons to the menu.
+     */
+    [
+	{
+	    /*
+	     This button searches a collection and alerts when a user clicks a result.
+	     */
+	    text: "Example",
+	    onlineOnly: true,
+	    search: {
+		collection: coll,
+		alwaysIncludeSearchTerm: true,
+		forbidEmpty: false
+	    },
+	    f: function(result) {
+		alert("Searched the test collection and found " + result);
 	    }
-	]);
+	},
+	{
+	    /*
+	     This button changes text every time the title of the page changes.
+	     */
+	    text: "Hook",
+	    onlineOnly: false,
+	    f: function() {
+		// Noop
+	    },
+	    hooks: function(button) {
+		menu.standard.onTitleChange(function(newTitle) {
+		    button.text(newTitle);
+		});
+	    }
+	}
+    ]);
 
 text.node().value = model.text;
