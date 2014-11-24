@@ -11,7 +11,8 @@ var d3 = require("d3"),
  text: the text of the button.
  [onlineOnly]: if true, the button will be hidden if we lose connection to the server.
  f: a function to be called when the button is clicked or the search returns.
- [hooks]; a function to call on the resulting button.
+ [hooks]: a function to call on the resulting button.
+ [element]: the element to use for this button (defaults to a div if ommitted).
 
  [search]: an object which indicates that we should perform a search before calling f with the result.
  [search.collection]: a string indicating the collection to be search against. If not specified, search against the default collection.
@@ -22,51 +23,50 @@ var d3 = require("d3"),
 module.exports = function(container, collection, buttonSpec, getTitle, searchFunction, onUp, onDown, isUp) {
     var lastSearch = null,
 	activeButton = null,
-	buttons = container.selectAll("div.document-control-button")
-	    .data(buttonSpec)
-	    .enter()
-	    .append("div")
-    	    .classed("document-control-item", true)
-	    .classed("document-control-button", true)
-	    .text(function(d, i) {
-		return d.text;
-	    })
-	    .classed("online-only", function(d, i) {
-		return d.onlineOnly;
-	    })
-	    .on("click", function(d, i) {
-		var button = d3.select(this);
-		
-		if (d.search) {
-		    hideSearch();
-		    clearActive();
-		    activeButton = button;
-		    activeButton.classed("active", true);
-	    
-		    lastSearch = search(
-			container,
-			searchFunction,
-			d.search.collection ? d.search.collection : collection,
-			d.search.alwaysIncludeSearchText,
-			d.search.forbidEmpty,
-			getTitle(),
-			function() {
-			    clearActive();
-			    d.f.apply(this, arguments);
-			},
-			clearActive
- 		    );
+	buttons = buttonSpec.map(function(spec) {
+	    var button = container.append(spec.element ? spec.element : "div")
+	            .classed("document-control-item", true)
+		    .classed("document-control-button", true)
+	    	    .text(function(d, i) {
+			return spec.text;
+		    })
+		    .classed("online-only", function(d, i) {
+			return spec.onlineOnly;
+		    })
+	    	    .on("click", function(d, i) {
+			var el = d3.select(this);
 			
-		} else {
-		    d.f(button);
-		}
-	    })
-	    .each(function(d, i) {
-		if (d.hooks) {
-		    var el = d3.select(this);
-		    d.hooks(el);
-		}
-	    }),
+			if (spec.search) {
+			    hideSearch();
+			    clearActive();
+			    activeButton = el;
+			    activeButton.classed("active", true);
+			    
+			    lastSearch = search(
+				container,
+				searchFunction,
+				spec.search.collection ? spec.search.collection : collection,
+				spec.search.alwaysIncludeSearchText,
+				spec.search.forbidEmpty,
+				getTitle(),
+				function() {
+				    clearActive();
+				    spec.f.apply(this, arguments);
+				},
+				clearActive
+ 			    );
+			
+			} else {
+			    spec.f(button);
+			}
+		    });
+
+	    if (spec.hooks) {
+		spec.hooks(button);
+	    }
+
+	    return button;
+	}),
 
 	clearActive = function() {
 	    if (activeButton) {

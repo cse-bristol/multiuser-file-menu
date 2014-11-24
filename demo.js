@@ -62,8 +62,11 @@ menu.buildMenu(
 	{
 	    /*
 	     This button changes text every time the title of the page changes.
+
+	     It is an anchor tag instead of a div.
 	     */
 	    text: "Hook",
+	    element: "a",
 	    onlineOnly: false,
 	    f: function() {
 		// Noop
