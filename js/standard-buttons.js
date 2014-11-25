@@ -63,6 +63,10 @@ module.exports = function() {
 		forbidEmpty: true
 	    },
 	    f: function(result) {
+		if (title === result) {
+		    return;
+		}
+		
 		setTitle(result, false);
 		onSaveAs(result);
 	    },
