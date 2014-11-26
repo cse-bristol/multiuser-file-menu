@@ -63,6 +63,19 @@ module.exports = function(url) {
 	    });
 	},
 
+	/*
+	 When the server is not connected, it's still OK to get a document if we know that it doesn't already exist.
+
+	 To ensure this, the name passed here should be a GUID.
+	 */
+	loadOffline: function(coll, name) {
+	    var doc = connection.get(coll, name.toLowerCase());
+	    if (!doc.subscribed) {
+		doc.subscribe();
+	    }
+	    return doc;
+	},
+
 	deleteDoc: function(coll, name) {
 	    var toDelete = connection.get(coll, name.toLowerCase());
 	    if (!toDelete.subscribed) {

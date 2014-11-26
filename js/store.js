@@ -89,20 +89,32 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	    });
     });
 
-    documentControl.onNew(function(name) {
-	loadFromCollection(
-	    name,
-	    function(loaded) {
-		setDoc(loaded);
-		var snapshot = loaded.getSnapshot();
-		if (snapshot) {
-		    doc.del();
-		}
+    var saveFresh = function() {
+	var model = freshModel();
+	saveDoc(model);
+	setModel(model);	 
+    };
 
-		var model = freshModel();
-		saveDoc(model);
-		setModel(model);
-	    });
+    documentControl.onNew(function(name) {
+	if (backend.isUp()) {
+	    loadFromCollection(
+		name,
+		function(loaded) {
+		    setDoc(loaded);
+		    var snapshot = loaded.getSnapshot();
+		    if (snapshot) {
+			doc.del();
+		    }
+
+		    saveFresh();
+		});
+	} else {
+	    setDoc(
+		backend.loadOffline(collection, name)
+	    );
+
+	    saveFresh();
+	}
     });
 
     return {
