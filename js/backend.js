@@ -135,7 +135,7 @@ module.exports = function(url) {
 		connection.once("disconnected", fail);
 		connection.once("stopped", fail);
 		
-	    } else if (isUp) {
+	    } else if (isUp()) {
 		onConnected();
 	    } else {
 		onDisconnected();
