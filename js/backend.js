@@ -114,7 +114,7 @@ module.exports = function(url) {
 	/*
 	 Schedule functions to run when we know for sure whether the server is up or down.
 	 */
-	waitForConnection: function(onConnected, onDisconnected) {
+	waitForConnectOrDisconnect: function(onConnected, onDisconnected) {
 	    if (connection.state === "connecting") {
 		var executed = false;
 		
@@ -139,6 +139,17 @@ module.exports = function(url) {
 		onConnected();
 	    } else {
 		onDisconnected();
+	    }
+	},
+
+	/*
+	 Schedule function to run the next time the server is up.
+	 */
+	waitForConnect: function(callback) {
+	    if (isUp()) {
+		callback();
+	    } else {
+		connection.once("connected", callback);
 	    }
 	}
     };

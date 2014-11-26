@@ -96,7 +96,7 @@ module.exports = function(collection, backend, documentControl, serialize, deser
     };
 
     documentControl.onNew(function(name) {
-	backend.waitForConnection(
+	backend.waitForConnectOrDisconnect(
 	    function() {
 		loadFromCollection(
 		    name,
