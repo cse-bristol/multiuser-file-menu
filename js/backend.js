@@ -24,8 +24,8 @@ module.exports = function(url) {
 	onUp = callbacks(),
 	onDown = callbacks(),
 	lastState = connection.state,
-	isUp = function(state) {
-	    return state === "connected";
+	isUp = function() {
+	    return connection && connection.state === "connected";
 	};
 
     // TODO remove this once we're happy.
@@ -51,7 +51,7 @@ module.exports = function(url) {
 			throw new Error("Unknown connection state " + state);
 		    }
 		}
-		if (isUp(state)) {
+		if (isUp()) {
 		    onUp();
 		} else {
 		    onDown();
@@ -107,9 +107,7 @@ module.exports = function(url) {
 
 	onUp: onUp.add,
 	onDown: onDown.add,
-	isUp: function() {
-	    return connection && isUp(connection.state);
-	},
+	isUp: isUp,
 
 	/*
 	 Schedule functions to run when we know for sure whether the server is up or down.
