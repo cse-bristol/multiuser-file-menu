@@ -23,8 +23,9 @@ module.exports = function(url) {
     ),
 	onUp = callbacks(),
 	onDown = callbacks(),
+	lastState = connection.state,
 	isUp = function(state) {
-	    return state === "connected" || state === "connecting";
+	    return state === "connected";
 	};
 
     // TODO remove this once we're happy.
@@ -33,6 +34,23 @@ module.exports = function(url) {
     ["connected", "connecting", "disconnected", "stopped"]
 	.forEach(function(state) {
 	    connection.on(state, function() {
+		if (state !== lastState) {
+		    lastState = state;
+		    switch(state) {
+		    case "connected":
+			onUp();
+			break;
+		    case "connecting":
+			// We don't yet know whether the server is up or down.
+			break;
+		    case "disconnected":
+		    case "stopped":
+			onDown();
+			break;
+		    default:
+			throw new Error("Unknown connection state " + state);
+		    }
+		}
 		if (isUp(state)) {
 		    onUp();
 		} else {
@@ -91,6 +109,37 @@ module.exports = function(url) {
 	onDown: onDown.add,
 	isUp: function() {
 	    return connection && isUp(connection.state);
+	},
+
+	/*
+	 Schedule functions to run when we know for sure whether the server is up or down.
+	 */
+	waitForConnection: function(onConnected, onDisconnected) {
+	    if (connection.state === "connecting") {
+		var executed = false;
+		
+		connection.once("connected", function() {
+		    if (!executed) {
+			executed = true;
+			onConnected();
+		    }
+		});
+
+		var fail = function() {
+		    if (!executed) {
+			executed = true;
+			onDisconnected();
+		    }
+		};
+
+		connection.once("disconnected", fail);
+		connection.once("stopped", fail);
+		
+	    } else if (isUp) {
+		onConnected();
+	    } else {
+		onDisconnected();
+	    }
 	}
     };
 };

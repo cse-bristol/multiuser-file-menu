@@ -78,5 +78,3 @@ menu.buildMenu(
 	    }
 	}
     ]);
-
-text.node().value = model.text;

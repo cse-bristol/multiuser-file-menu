@@ -96,25 +96,28 @@ module.exports = function(collection, backend, documentControl, serialize, deser
     };
 
     documentControl.onNew(function(name) {
-	if (backend.isUp()) {
-	    loadFromCollection(
-		name,
-		function(loaded) {
-		    setDoc(loaded);
-		    var snapshot = loaded.getSnapshot();
-		    if (snapshot) {
-			doc.del();
-		    }
+	backend.waitForConnection(
+	    function() {
+		loadFromCollection(
+		    name,
+		    function(loaded) {
+			setDoc(loaded);
+			var snapshot = loaded.getSnapshot();
+			if (snapshot) {
+			    doc.del();
+			}
 
-		    saveFresh();
-		});
-	} else {
-	    setDoc(
-		backend.loadOffline(collection, name)
-	    );
+			saveFresh();
+		    });
+	    },
+	    function() {
+		setDoc(
+		    backend.loadOffline(collection, name)
+		);
 
-	    saveFresh();
-	}
+		saveFresh();
+	    }
+	);
     });
 
     return {
