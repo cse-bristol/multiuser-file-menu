@@ -124,7 +124,10 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	writeOp: function(op) {
 	    writing = true;
 	    try {
-		context.submitOp([op], noop);
+		// If we don't have a document context yet, there's no point trying to send operations to it.
+		if (context) {
+		    context.submitOp([op], noop);
+		}
 	    } finally {
 		writing = false;
 	    }
