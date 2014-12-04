@@ -19,9 +19,19 @@ module.exports = function(container, searchFunction, collection, alwaysIncludeSe
 	    .attr("id", "search-control")
     // Search immediately if you hit enter.
 	    .on("submit", function(d, i) {
-		d3.event.stopPropagation();
 		d3.event.preventDefault();
-		doSearch();
+		d3.event.stopPropagation();
+		
+		var topResult = searchResults.select("li");
+
+		if (topResult) {
+		    callback(topResult.datum());
+		    hideResults(5);
+		    
+		} else {
+		    doSearch();
+		}
+		return false;
 	    });
 
     var getSearchValue = function() {
