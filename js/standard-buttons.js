@@ -59,7 +59,9 @@ module.exports = function() {
 	
 	{
 	    text: "Open",
-	    search: {},
+	    search: {
+		exclude: newRegex
+	    },
 	    f: open,
 	    onlineOnly: true
 	},
@@ -68,7 +70,8 @@ module.exports = function() {
 	    text: "Save as",
 	    search: {
 		alwaysIncludeSearchText: true,
-		forbidEmpty: true
+		forbidEmpty: true,
+		exclude: newRegex
 	    },
 	    f: function(result) {
 		if (title === result) {
@@ -83,7 +86,9 @@ module.exports = function() {
 
 	{
 	    text: "Delete",
-	    search: {},
+	    search: {
+		exclude: newRegex
+	    },
 	    f: function(result) {
 		if (result === title) {
 		    setTitle(guid(), true);
