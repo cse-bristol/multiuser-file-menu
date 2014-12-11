@@ -9,12 +9,18 @@ var callbacks = require("./helpers.js").callbackHandler,
 /*
  Provides a temporary search box, which will go away when the user clicks on one of the results.
 
- alwaysIncludeSearchText is a boolean which, if set true, will cause the value the user search for to always appear in the search results, even if it doesn't exist (useful for save as operations). If it was added in this way, it will have the class .search-result-fabricated.
+ options.alwaysIncludeSearchText is a boolean which, if set true, will cause the value the user search for to always appear in the search results, even if it doesn't exist (useful for save as operations). If it was added in this way, it will have the class .search-result-fabricated.
 
  currentPage will have the class .search-result-current-page.
  */
-module.exports = function(container, searchFunction, collection, alwaysIncludeSearchText, forbidEmpty, currentPage, callback, onHide) {
-    var form = container
+module.exports = function(container, searchFunction, collection, currentPage, callback, onHide, options) {
+    var alwaysIncludeSearchText = options.alwaysIncludeSearchText === undefined ? false : options.alwaysIncludeSearchText,
+
+	forbidEmpty = options.forbidEmpty === undefined ? false: options.forbidEmpty,
+	
+	exclude = options.exclude === undefined ? /(?!)/ : options.exclude,
+	
+	form = container
 	    .append("form")
 	    .attr("id", "search-control")
     // Search immediately if you hit enter.
@@ -33,6 +39,10 @@ module.exports = function(container, searchFunction, collection, alwaysIncludeSe
 		}
 		return false;
 	    });
+
+    form.onsubmit = function() {
+    	return false;
+    };
 
     var getSearchValue = function() {
 	return search.node().value.toLowerCase().trim();
@@ -83,6 +93,10 @@ module.exports = function(container, searchFunction, collection, alwaysIncludeSe
 		names = [val].concat(names);
 		addedVal = true;
 	    }
+
+	    names = names.filter(function(n) {
+		return !exclude.test(n);
+	    });
 	    
 	    var results = searchResults.selectAll("li")
 		    .data(

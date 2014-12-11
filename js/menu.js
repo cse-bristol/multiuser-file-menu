@@ -46,14 +46,17 @@ module.exports = function(container, collection, buttonSpec, getTitle, searchFun
 				container,
 				searchFunction,
 				spec.search.collection ? spec.search.collection : collection,
-				spec.search.alwaysIncludeSearchText,
-				spec.search.forbidEmpty,
 				getTitle(),
 				function() {
 				    clearActive();
 				    spec.f.apply(this, arguments);
 				},
-				clearActive
+				clearActive,
+				{
+				    alwaysIncludeSearchText: spec.search.alwaysIncludeSearchText,
+				    forbidEmpty: spec.search.forbidEmpty,
+				    exclude: spec.search.exclude
+				}
  			    );
 			
 			} else {

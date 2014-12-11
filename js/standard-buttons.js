@@ -5,7 +5,15 @@
 var d3 = require("d3"),
     helpers = require("./helpers.js"),
     guid = helpers.guid,
-    callbacks = helpers.callbackHandler;
+    callbacks = helpers.callbackHandler,
+    newPrefix = "new-",
+    /*
+     The newPrefix, followed by a guid.
+     A guid is groups of hexadecimal digits separated by hyphens in the pattern 8-4-4-4-12 where the numbers correspond to the number of digits in the group.
+
+     We'll use this to filter new documents out of search.
+     */
+    newRegex = /new-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
 
 /*
  Provides a set of pre-specified buttons: New, Open, Save as, and Delete.
@@ -33,7 +41,7 @@ module.exports = function() {
 	},
 	
 	newDoc = function() {
-	    setTitle(guid(), true);
+	    setTitle(newPrefix + guid(), true);
 	    onNew(title);
 	},
 
