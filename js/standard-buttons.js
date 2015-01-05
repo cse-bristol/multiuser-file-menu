@@ -41,15 +41,6 @@ module.exports = function(spec) {
 	    "New",
 	    newDoc,
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: true
-		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
-		},
 		embeddedStandalone: {
 		    embedded: false,
 		    standalone: true
@@ -64,11 +55,6 @@ module.exports = function(spec) {
 		onlineOffline: {
 		    online: true,
 		    offline: false
-		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
 		},
 		embeddedStandalone: {
 		    embedded: false,
@@ -93,10 +79,6 @@ module.exports = function(spec) {
 		    write: true,
 		    sync: false
 		},
-		embeddedStandalone: {
-		    embedded: true,
-		    standalone: true
-		},
 		extraConditions: function() {
 		    // Can't save until we have a title for this page.
 		    return !!title;
@@ -118,11 +100,6 @@ module.exports = function(spec) {
 		onlineOffline: {
 		    online: true,
 		    offline: false
-		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
 		},
 		embeddedStandalone: {
 		    embedded: false,
@@ -149,11 +126,6 @@ module.exports = function(spec) {
 		    online: true,
 		    offline: false
 		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
-		},
 		embeddedStandalone: {
 		    embedded: false,
 		    standalone: true
@@ -168,15 +140,6 @@ module.exports = function(spec) {
 		window.open(document.location, "_parent");
 	    },
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: true
-		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
-		},
 		embeddedStandalone: {
 		    embedded: true,
 		    standalone: false

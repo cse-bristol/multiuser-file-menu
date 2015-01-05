@@ -57,11 +57,6 @@ menu.buildMenu(
 		    online: true,
 		    offline: false
 		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
-		},
 		embeddedStandalone: {
 		    embedded: false,
 		    standalone: true
@@ -85,15 +80,6 @@ menu.buildMenu(
 		// Noop
 	    },
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: true
-		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
-		},
 		embeddedStandalone: {
 		    embedded: false,
 		    standalone: true
@@ -123,15 +109,6 @@ menu.buildMenu(
 		
 	    },
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: true
-		},
-		readWriteSync: {
-		    read: true,
-		    write: true,
-		    sync: true
-		},
 		embeddedStandalone: {
 		    embedded: false,
 		    standalone: true

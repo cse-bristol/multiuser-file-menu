@@ -11,20 +11,14 @@ var matchNone = /(?!)/,
  The reason for these functions is to provide defaults for the optional arguments, and to check the types of things supplied by the user.
  */
 module.exports = function(defaultCollection) {
-    var checkBool = function(o, paths) {
-	paths.forEach(function(p) {
-	    var sub = o[p[0]];
-
-	    if (!sub) {
-		throw new Error("states should have the property " + p[0]);
+    var checkState = function(o, props) {
+	props.forEach(function(p) {
+	    if (o[p] === undefined) {
+		throw new Error("Missing property " + p + " had " + Object.keys(o));
 	    }
 
-	    if (sub[p[1]] === undefined) {
-		throw new Error("states." + p[0] + " should have the property " + p[1] + ", had " + Object.keys(sub));
-	    }
-
-	    if (typeof(sub[p[1]]) !== 'boolean') {
-		throw new Error("states." + p[0] + "." + p[1] + " should be a boolean, was: " + sub[p[1]]);
+	    if (typeof(o[p]) !== 'boolean') {
+		throw new Error("Property " + p + " should be a boolean, was: " + o[p]);
 	    }
 	});
     };
@@ -32,17 +26,13 @@ module.exports = function(defaultCollection) {
     /*
      states should be an object.
 
-     It should contain 3 sub-objects: onlineOffline, readWriteSync and embeddedStandalone.
+     We are checking for 3 properties: onlineOffline, readWriteSync and embeddedStandalone. Each of these represents a dimension of the state-space of the menu. If any are missing, the button will be displayed regardless of the state of the dimension.
 
-     Each of these should include true or false properties for each of the states they can be in.
+     Each of these should be a subobject containing true/false sub-properties detailing which states the button should display in.
 
      If may also contain an optional function extraConditions. The button will only display if this returns true.
      */    
     var checkStates = function(states) {
-	if (!(states.onlineOffline && states.readWriteSync && states.embeddedStandalone)) {
-	    throw new Error("states should be an object with properties onlineOffline, readWriteSync and embeddedStandalone. Was: " + states);
-	}
-
 	if (!states.extraConditions) {
 	    states.extraConditions = function() {
 		return true;
@@ -51,15 +41,33 @@ module.exports = function(defaultCollection) {
 	    throw new Error("If extraConditions is specified, it must be a function, was " + states.extraConditions);
 	}
 
-	checkBool(states, [
-	    ['onlineOffline', 'online'],
-	    ['onlineOffline', 'offline'],
-	    ['readWriteSync', 'read'],
-	    ['readWriteSync', 'write'],
-	    ['readWriteSync', 'sync'],
-	    ['embeddedStandalone', 'embedded'],
-	    ['embeddedStandalone', 'standalone']
-	]);
+	if (!states.onlineOffline) {
+	    states.onlineOffline = {
+		online: true,
+		offline: true
+	    };
+	} else {
+	    checkState(states.onlineOffline, ['online', 'offline']);
+	}
+
+	if (!states.readWriteSync) {
+	    states.readWriteSync = {
+		read: true,
+		write: true,
+		sync: true
+	    };
+	} else {
+	    checkState(states.readWriteSync, ['read', 'write', 'sync']);
+	}
+
+	if (!states.embeddedStandalone) {
+	    states.embeddedStandalone = {
+		embedded: true,
+		standalone: true
+	    };
+	} else {
+	    checkState(states.embeddedStandalone, ['embedded', 'standalone']);
+	}
     };
 
     /*
