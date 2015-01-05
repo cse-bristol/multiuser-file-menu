@@ -5,12 +5,13 @@
 var helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler;
 
-
-module.exports = function(onUp, onDown, isUp) {
+module.exports = function(onUp, onDown, isUp, onAutoSaveChanged, autoSave, onTitleChanged, getTitle) {
     var onChange = callbacks();
 
     onUp(onChange);
     onDown(onChange);
+    onAutoSaveChanged(onChange);
+    onTitleChanged(onChange);
     
     var m = {
 	online: function() {
@@ -25,12 +26,19 @@ module.exports = function(onUp, onDown, isUp) {
 	    }
 	},
 
+	/*
+	 Documents which don't have a title are considered read only.
+
+	 TODO: documents for which the user does not have write permissions.
+
+	 TODO: historical versions.
+	 */
 	readOnly: function() {
-	    return true;
+	    return !getTitle();
 	},
 
 	sync: function() {
-	    return false;
+	    return autoSave();
 	},
 
 	/*

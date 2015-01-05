@@ -24,7 +24,11 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	menuState = menuStateFactory(
 	    backend.onUp,
 	    backend.onDown,
-	    backend.isUp
+	    backend.isUp,
+	    store.onAutoSaveChanged,
+	    store.autoSave,
+	    standardButtons.onTitleChange,
+	    standardButtons.getTitle
 	);
 
     return {

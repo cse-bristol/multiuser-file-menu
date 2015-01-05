@@ -78,10 +78,6 @@ module.exports = function(spec) {
 		    read: false,
 		    write: true,
 		    sync: false
-		},
-		extraConditions: function() {
-		    // Can't save until we have a title for this page.
-		    return !!title;
 		}
 	    }
 	),

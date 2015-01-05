@@ -34,7 +34,6 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 		    d.onlineOffline[menuState.online() ? "online" : "offline"]
 			&& d.readWriteSync[menuState.readWriteSync()]
 			&& d.embeddedStandalone[menuState.embedded() ? "embedded" : "standalone"]
-			&& d.extraConditions()
 		    
 		) ? "inline-block" : "none";
 	    });

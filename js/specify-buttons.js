@@ -29,18 +29,8 @@ module.exports = function(defaultCollection) {
      We are checking for 3 properties: onlineOffline, readWriteSync and embeddedStandalone. Each of these represents a dimension of the state-space of the menu. If any are missing, the button will be displayed regardless of the state of the dimension.
 
      Each of these should be a subobject containing true/false sub-properties detailing which states the button should display in.
-
-     If may also contain an optional function extraConditions. The button will only display if this returns true.
      */    
     var checkStates = function(states) {
-	if (!states.extraConditions) {
-	    states.extraConditions = function() {
-		return true;
-	    };
-	} else if (typeof(states.extraConditions) !== 'function') {
-	    throw new Error("If extraConditions is specified, it must be a function, was " + states.extraConditions);
-	}
-
 	if (!states.onlineOffline) {
 	    states.onlineOffline = {
 		online: true,
@@ -156,7 +146,6 @@ module.exports = function(defaultCollection) {
 		onlineOffline: options.onlineOffline,
 		readWriteSync: options.readWriteSync,
 		embeddedStandalone: options.embeddedStandalone,
-		extraConditions: options.extraConditions,
 		search: options.search,
 		hooks: options.hooks,
 		element: options.element
