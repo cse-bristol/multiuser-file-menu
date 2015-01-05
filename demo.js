@@ -105,5 +105,37 @@ menu.buildMenu(
 		},
 		element: "a"
 	    }
+	),
+
+	menu.spec.button(
+	    /*
+	     Embeds an iframe in the page.
+	     */
+	    "Embed iframe",
+	    function() {
+		body.append("iframe")
+		    .attr("src", document.location)
+		    .style("width", "400px")
+		    .style("height", "400px")
+		    .style("position", "absolute")
+		    .style("right", 0)
+		    .style("bottom", 0);
+		
+	    },
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: true
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		}
+	    }
 	)
     ]);

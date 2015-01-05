@@ -160,6 +160,28 @@ module.exports = function(spec) {
 		},
 		search: {}
 	    }
+	),
+
+	spec.button(
+	    "Pop Out",
+	    function() {
+		window.open(document.location, "_parent");
+	    },
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: true
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: true,
+		    standalone: false
+		}
+	    }
 	)
     ];
 
