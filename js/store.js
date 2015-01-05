@@ -17,21 +17,36 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
 	writing = false,
+	
+	autoSave = false,
+	onAutoSaveChanged = callbacks(),
+	setAutoSave = function(val) {
+	    autoSave = val;
+	    onAutoSaveChanged(val);
+	},
+	
 	onOp = callbacks(),
 	setDoc = function(newDoc) {
-	    if (doc) {
-		doc.destroy();
-		context = null;
-	    }
-	    doc = newDoc;
-	    if (doc) {
-		doc.on("after op", function(ops, context) {
-		    if (!writing) {
-			ops.forEach(function(op) {
-			    onOp(op);
-			});
-		    }
-		});
+	    if (doc === newDoc) {
+		return;
+	    } else {
+		if (doc) {
+		    doc.destroy();
+		    context = null;
+		}
+		
+		doc = newDoc;
+		setAutoSave(false);
+		
+		if (doc) {
+		    doc.on("after op", function(ops, context) {
+			if (!writing && autoSave) {
+			    ops.forEach(function(op) {
+				onOp(op);
+			    });
+			}
+		    });
+		}
 	    }
 	},
 	/*
@@ -77,6 +92,14 @@ module.exports = function(collection, backend, documentControl, serialize, deser
     });
 
     documentControl.onSaveAs(function(name) {
+	if (doc && doc.name === name) {
+	    /*
+	     Overwrite the contents of the document without reloading it.  
+	     */
+	    doc.del();
+	    saveDoc(getModel());
+	}
+	
 	loadFromCollection(
 	    name,
 	    function(loaded) {
@@ -95,16 +118,20 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	setModel(freshModel());
     });
 
+    documentControl.onAutoSaveChange(setAutoSave);
+
     return {
 	writeOp: function(op) {
-	    writing = true;
-	    try {
-		// If we don't have a document context yet, there's no point trying to send operations to it.
-		if (context) {
-		    context.submitOp([op], noop);
+	    if (autoSave) {
+		writing = true;
+		try {
+		    // If we don't have a document context yet, there's no point trying to send operations to it.
+		    if (context) {
+			context.submitOp([op], noop);
+		    }
+		} finally {
+		    writing = false;
 		}
-	    } finally {
-		writing = false;
 	    }
 	},
 
@@ -127,6 +154,14 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		    }
 		}
 	    );
-	}
+	},
+
+	onAutoSaveChanged: onAutoSaveChanged.add,
+
+	autoSave: function() {
+	    return autoSave;
+	},
+
+	setAutoSave: setAutoSave
     };
 };

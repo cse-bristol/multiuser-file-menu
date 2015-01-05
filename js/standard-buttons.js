@@ -20,6 +20,7 @@ module.exports = function(spec) {
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
 	onDelete = callbacks(),
+	onAutoSaveChange = callbacks(),
 
 	setTitle = function(newTitle) {
 	    title = newTitle;
@@ -63,6 +64,46 @@ module.exports = function(spec) {
 		search: {}
 	    }
 	),
+
+	spec.button(
+	    "Autosave",
+	    function() {
+		/*
+		 Sync the document, then listen to further changes.
+		 */
+		onSaveAs(title);
+		onAutoSaveChange(true);
+	    },
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: false,
+		    write: true,
+		    sync: false
+		}
+	    }
+	),
+
+	spec.button(
+	    "Manual",
+	    function() {
+		onAutoSaveChange(false);
+	    },
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: false,
+		    write: false,
+		    sync: true
+		}
+	    }
+	),	
 
 	spec.button(
 	    "Save",
@@ -162,6 +203,8 @@ module.exports = function(spec) {
 	onOpen: onOpen.add,
 	
 	onSaveAs: onSaveAs.add,
-	onDelete: onDelete.add
+	onDelete: onDelete.add,
+
+	onAutoSaveChange: onAutoSaveChange.add
     };
 };
