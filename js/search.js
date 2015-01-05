@@ -9,18 +9,10 @@ var callbacks = require("./helpers.js").callbackHandler,
 /*
  Provides a temporary search box, which will go away when the user clicks on one of the results.
 
- options.alwaysIncludeSearchText is a boolean which, if set true, will cause the value the user search for to always appear in the search results, even if it doesn't exist (useful for save as operations). If it was added in this way, it will have the class .search-result-fabricated.
-
- currentPage will have the class .search-result-current-page.
+ options.currentPage will have the class .search-result-current-page added to it.
  */
-module.exports = function(container, searchFunction, collection, currentPage, callback, onHide, options) {
-    var alwaysIncludeSearchText = options.alwaysIncludeSearchText === undefined ? false : options.alwaysIncludeSearchText,
-
-	forbidEmpty = options.forbidEmpty === undefined ? false: options.forbidEmpty,
-	
-	exclude = options.exclude === undefined ? /(?!)/ : options.exclude,
-	
-	form = container
+module.exports = function(container, searchFunction, onHide, options) {
+    var form = container
 	    .append("form")
 	    .attr("id", "search-control")
     // Search immediately if you hit enter.
@@ -30,8 +22,8 @@ module.exports = function(container, searchFunction, collection, currentPage, ca
 		
 		var topResult = searchResults.select("li");
 
-		if (topResult) {
-		    callback(topResult.datum());
+		if (topResult.size()) {
+		    options.f(topResult.datum());
 		    hideResults(5);
 		    
 		} else {
@@ -76,10 +68,10 @@ module.exports = function(container, searchFunction, collection, currentPage, ca
     var doSearch = function() {
 	var val = getSearchValue();
 
-	searchFunction(collection, val, function(names) {
+	searchFunction(options.collection, val, function(names) {
 	    var addedVal = false;
 
-	    if (forbidEmpty && val === "") {
+	    if (options.excludeTerms.test(val)) {
 		return;
 	    }
 	    
@@ -88,16 +80,12 @@ module.exports = function(container, searchFunction, collection, currentPage, ca
 		return;
 	    }
 
-	    if (alwaysIncludeSearchText && names.indexOf(val) < 0) {
+	    if (options.includeSearchTerm && names.indexOf(val) < 0) {
 		// Add the search text to the top of the list.
 		names = [val].concat(names);
 		addedVal = true;
 	    }
 
-	    names = names.filter(function(n) {
-		return !exclude.test(n);
-	    });
-	    
 	    var results = searchResults.selectAll("li")
 		    .data(
 			names,
@@ -114,11 +102,11 @@ module.exports = function(container, searchFunction, collection, currentPage, ca
 			return d;
 		    })
 		    .on("click", function(d, i) {
-			callback(d);
+			options.f(d);
 			hideResults(5);
 		    })
 		    .classed("search-result-current-page", function(d, i) {
-			return d === currentPage;
+			return d === options.currentPage;
 		    })
 		    .classed("search-result-fabricated", function(d, i) {
 			return addedVal && d === val;

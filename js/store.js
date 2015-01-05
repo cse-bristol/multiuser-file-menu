@@ -24,14 +24,15 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		context = null;
 	    }
 	    doc = newDoc;
-	    doc.on("after op", function(ops, context) {
-		if (!writing) {
-		    ops.forEach(function(op) {
-			onOp(op);
-		    });
-		}
-	    });
-	    
+	    if (doc) {
+		doc.on("after op", function(ops, context) {
+		    if (!writing) {
+			ops.forEach(function(op) {
+			    onOp(op);
+			});
+		    }
+		});
+	    }
 	},
 	/*
 	 Document must have been deleted for this to work.
@@ -89,35 +90,9 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	    });
     });
 
-    var saveFresh = function() {
-	var model = freshModel();
-	saveDoc(model);
-	setModel(model);	 
-    };
-
-    documentControl.onNew(function(name) {
-	backend.waitForConnectOrDisconnect(
-	    function() {
-		loadFromCollection(
-		    name,
-		    function(loaded) {
-			setDoc(loaded);
-			var snapshot = loaded.getSnapshot();
-			if (snapshot) {
-			    doc.del();
-			}
-
-			saveFresh();
-		    });
-	    },
-	    function() {
-		setDoc(
-		    backend.loadOffline(collection, name)
-		);
-
-		saveFresh();
-	    }
-	);
+    documentControl.onNew(function() {
+	setDoc(null);
+	setModel(freshModel());
     });
 
     return {

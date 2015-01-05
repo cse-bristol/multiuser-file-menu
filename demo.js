@@ -44,37 +44,66 @@ menu.buildMenu(
      Example of how to add some extra buttons to the menu.
      */
     [
-	{
+	menu.spec.button(
 	    /*
 	     This button searches a collection and alerts when a user clicks a result.
 	     */
-	    text: "Example",
-	    onlineOnly: true,
-	    search: {
-		collection: coll,
-		alwaysIncludeSearchTerm: true,
-		forbidEmpty: false
-	    },
-	    f: function(result) {
+	    "Example",
+	    function(result) {
 		alert("Searched the test collection and found " + result);
+	    },
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		},
+		search: {
+		    collection: coll,
+		    excludeTerms: menu.spec.matchEmpty,
+		    includeSearchTerm: true
+		}
 	    }
-	},
-	{
+	),
+
+	menu.spec.button(
 	    /*
 	     This button changes text every time the title of the page changes.
-
+	     
 	     It is an anchor tag instead of a div.
 	     */
-	    text: "Hook",
-	    element: "a",
-	    onlineOnly: false,
-	    f: function() {
+	    "Hook",
+	    function() {
 		// Noop
 	    },
-	    hooks: function(button) {
-		menu.standard.onTitleChange(function(newTitle) {
-		    button.text(newTitle);
-		});
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: true
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		},
+		hooks: function(button) {
+		    menu.standard.onTitleChange(function(newTitle) {
+			button.text(newTitle);
+		    });
+		},
+		element: "a"
 	    }
-	}
+	)
     ]);

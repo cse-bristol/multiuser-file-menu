@@ -4,16 +4,7 @@
 
 var d3 = require("d3"),
     helpers = require("./helpers.js"),
-    guid = helpers.guid,
-    callbacks = helpers.callbackHandler,
-    newPrefix = "new-",
-    /*
-     The newPrefix, followed by a guid.
-     A guid is groups of hexadecimal digits separated by hyphens in the pattern 8-4-4-4-12 where the numbers correspond to the number of digits in the group.
-
-     We'll use this to filter new documents out of search.
-     */
-    newRegex = /new-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
+    callbacks = helpers.callbackHandler;
 
 /*
  Provides a set of pre-specified buttons: New, Open, Save as, and Delete.
@@ -22,58 +13,100 @@ var d3 = require("d3"),
 
  Keeps track of the document title, and whether or not it is a temporary title.
  */
-module.exports = function() {
+module.exports = function(spec) {
     var title = null,
-	temp = false,
 	onTitleChange = callbacks(),
     	onNew = callbacks(),
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
 	onDelete = callbacks(),
 
-	setTitle = function(newTitle, newTemp) {
-	    if (temp) {
-		onDelete(title);
-	    }
+	setTitle = function(newTitle) {
 	    title = newTitle;
-	    temp = newTemp;
 	    onTitleChange(title);
 	},
 	
 	newDoc = function() {
-	    setTitle(newPrefix + guid(), true);
-	    onNew(title);
+	    setTitle(null);
+	    onNew();
 	},
 
 	open = function(name) {
-	    setTitle(name, false);
+	    setTitle(name);
 	    onOpen(name);
 	};
 
     var standardButtons = [
-	{
-	    text: "New",
-	    f: newDoc,
-	    onlineOnly: false
-	},
-	
-	{
-	    text: "Open",
-	    search: {
-		exclude: newRegex
-	    },
-	    f: open,
-	    onlineOnly: true
-	},
+	spec.button(
+	    "New",
+	    newDoc,
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: true
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		}
+	    }
+	),
 
-	{
-	    text: "Save as",
-	    search: {
-		alwaysIncludeSearchText: true,
-		forbidEmpty: true,
-		exclude: newRegex
+	spec.button(
+	    "Open",
+	    open,
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		},
+		search: {}
+	    }
+	),
+
+	spec.button(
+	    "Save",
+	    function() {
+		onSaveAs(title);
 	    },
-	    f: function(result) {
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: false,
+		    write: true,
+		    sync: false
+		},
+		embeddedStandalone: {
+		    embedded: true,
+		    standalone: true
+		},
+		extraConditions: function() {
+		    // Can't save until we have a title for this page.
+		    return !!title;
+		}
+	    }
+	),
+	
+	spec.button(
+	    "Save as",
+	    function(result) {
 		if (title === result) {
 		    return;
 		}
@@ -81,23 +114,53 @@ module.exports = function() {
 		setTitle(result, false);
 		onSaveAs(result);
 	    },
-	    onlineOnly: true
-	},
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		},
+		search: {
+		    excludeTerms: spec.matchEmpty,
+		    includeSearchTerm: true
+		}
+	    }
+	),
 
-	{
-	    text: "Delete",
-	    search: {
-		exclude: newRegex
-	    },
-	    f: function(result) {
+	spec.button(
+	    "Delete",
+	    function(result) {
 		if (result === title) {
-		    setTitle(guid(), true);
-		    onNew(title);
+		    setTitle(null);
+		    onNew();
 		}		
 		onDelete(result);
 	    },
-	    onlineOnly: true
-	}
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		readWriteSync: {
+		    read: true,
+		    write: true,
+		    sync: true
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		},
+		search: {}
+	    }
+	)
     ];
 
     return {

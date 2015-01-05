@@ -7,6 +7,8 @@ var backendFactory = require("./backend.js"),
     standardButtonFactory = require("./standard-buttons.js"),
     storeFactory = require("./store.js"),
     queryStringFactory = require("./query-string.js"),
+    buttonSpecFactory = require("./specify-buttons.js"),
+    menuStateFactory = require("./menu-state.js"),
     defaultUrl = function() {
 	var a = document.createElement("a");
 	a.href = "/";
@@ -15,25 +17,30 @@ var backendFactory = require("./backend.js"),
 
 module.exports = function(collection, serialize, deserialize, getModel, setModel, freshModel, url) {
     var backend = backendFactory(url ? url : defaultUrl),
-	standardButtons = standardButtonFactory(),
+	buttonSpec = buttonSpecFactory(collection),
+	standardButtons = standardButtonFactory(buttonSpec),
 	store = storeFactory(collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
-	queryString = queryStringFactory(standardButtons, collection);
+	queryString = queryStringFactory(standardButtons, collection),
+	menuState = menuStateFactory(
+	    backend.onUp,
+	    backend.onDown,
+	    backend.isUp
+	);
 
     return {
 	backend: backend,
 	store: store,
 	queryString: queryString,
 	standard: standardButtons,
+	spec: buttonSpec,
 	buildMenu: function(container, extraButtons) {
 	    menuFactory(
-	    container,
-	    collection,
-	    standardButtons.buttonSpec().concat(extraButtons),
-	    standardButtons.getTitle,
-	    backend.search,
-	    backend.onUp,
-	    backend.onDown,
-	    backend.isUp);
+		container,
+		standardButtons.buttonSpec().concat(extraButtons),
+		standardButtons.getTitle,
+		backend.search,
+		menuState
+	    );
 	}
     };
 };

@@ -29,14 +29,25 @@ module.exports = function(standardButtons, collection) {
 	var url = URL.parse(window.location.href, true),
 	    query = url.query;
 
-	var encodedName = encodeURIComponent(name);
+	if (name) {
 
-	if (encodedName !== query.name) {
-	    query.name = encodedName;
+	    var encodedName = encodeURIComponent(name);
+
+	    if (encodedName !== query.name) {
+		query.name = encodedName;
+		url.search = null;
+		window.history.pushState(null, "", URL.format(url));
+		document.title = name + " - " + collection;
+	    }
+	    
+	} else {
+	    delete query.name;
 	    url.search = null;
 	    window.history.pushState(null, "", URL.format(url));
-	    document.title = name + " - " + collection;
+	    document.title = "Untitled " + " - " + collection;	    
 	}
+	
+
     };
 
     d3.select(window).on("popstate", fromURL);
