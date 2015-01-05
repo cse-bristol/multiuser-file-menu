@@ -23,6 +23,21 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 		lastSearch.hide();
 		lastSearch = null;
 	    }
+	},
+
+	updateButtons = function() {
+	    buttons.style("display", function(d, i) {
+		return (
+		    /*
+		     Check the current menu state against the states allowed by spec for this button.
+		     */
+		    d.onlineOffline[menuState.online() ? "online" : "offline"]
+			&& d.readWriteSync[menuState.readWriteSync()]
+			&& d.embeddedStandalone[menuState.embedded() ? "embedded" : "standalone"]
+			&& d.extraConditions()
+		    
+		) ? "inline-block" : "none";
+	    });
 	};
 
     buttonSpec.map(function(spec) {
@@ -69,18 +84,6 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 
     var buttons = container.selectAll(".document-control-item");
 
-    menuState.onChange(function() {
-	buttons.style("display", function(d, i) {
-	    return (
-		/*
-		 Check the current menu state against the states allowed by spec for this button.
-		 */
-		d.onlineOffline[menuState.online() ? "online" : "offline"]
-		    && d.readWriteSync[menuState.readWriteSync()]
-		    && d.embeddedStandalone[menuState.embedded() ? "embedded" : "standalone"]
-		    && d.extraConditions()
-		    
-	    ) ? "inline-block" : "none";
-	});
-    });
+    menuState.onChange(updateButtons);
+    updateButtons();
 };
