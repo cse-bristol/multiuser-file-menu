@@ -174,7 +174,7 @@ module.exports = function(spec) {
 	spec.button(
 	    "Pop Out",
 	    function() {
-		window.open(document.location, "_parent");
+		window.open(document.location, "_blank");
 	    },
 	    {
 		embeddedStandalone: {
