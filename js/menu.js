@@ -3,7 +3,8 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    search = require("./search.js");
+    search = require("./search.js"),
+    epsilon = 0.0001;
 
 /*
  Provides UI buttons based on buttonSpec, which should be an array containing objects generated using specify-buttons.js.
@@ -23,6 +24,14 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 		lastSearch.hide();
 		lastSearch = null;
 	    }
+	},
+
+	confirm = function(el) {
+	    el.select(".confirmation")
+		.style("opacity", 1)
+		.transition()
+		.duration(1000)
+		.style("opacity", epsilon);
 	},
 
 	updateButtons = function() {
@@ -62,6 +71,7 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 			searchOptions.f = function() {
 			    clearActive();
 			    spec.f.apply(this, arguments);
+			    confirm(el);
 			};
 			
 			lastSearch = search(
@@ -73,8 +83,15 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 			
 		    } else {
 			spec.f(button);
+			confirm(el);
 		    }
 		});
+
+	button.append("span")
+	    .text("✓")
+	    .classed("confirmation", true)
+	    .style("opacity", epsilon);
+
 
 	spec.hooks(button);
 

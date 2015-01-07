@@ -1,4 +1,5 @@
 .document-control-item {
+    position: relative;
     display: inline-block;
     width: 5.5em;
     background-color: #E0E0E0;
@@ -26,6 +27,12 @@
 a.document-control-button {
     text-decoration: none;
     color: black;
+}
+
+.confirmation {
+    color: green;
+    position: absolute;
+    right: 2px;
 }
 
 .document-control-button:hover {
