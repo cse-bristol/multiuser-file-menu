@@ -71,7 +71,9 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 			searchOptions.f = function() {
 			    clearActive();
 			    spec.f.apply(this, arguments);
-			    confirm(el);
+			    if (spec.confirm) {
+				confirm(el);
+			    }
 			};
 			
 			lastSearch = search(
@@ -83,7 +85,9 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 			
 		    } else {
 			spec.f(button);
-			confirm(el);
+			if (spec.confirm) {
+			    confirm(el);
+			}
 		    }
 		});
 

@@ -66,7 +66,8 @@ module.exports = function(spec) {
 	),
 
 	spec.button(
-	    "Autosave",
+	    // Toggle: this half goes from manual -> auto
+	    "Auto",
 	    function() {
 		/*
 		 Sync the document, then listen to further changes.
@@ -83,12 +84,21 @@ module.exports = function(spec) {
 		    read: false,
 		    write: true,
 		    sync: false
-		}
+		},
+		confirm: false,
+		hooks: function(button) {
+		    button
+			.select(".confirmation")
+			.text("X")
+			.style("opacity", 1)
+			.style("color", "darkred");
+		}		
 	    }
 	),
 
 	spec.button(
-	    "Manual",
+	    // Toggle: this half goes from auto -> manual
+	    "Auto",
 	    function() {
 		onAutoSaveChange(false);
 	    },
@@ -101,9 +111,40 @@ module.exports = function(spec) {
 		    read: false,
 		    write: false,
 		    sync: true
+		},
+		confirm: false,
+		hooks: function(button) {
+		    button
+		    	.classed("active", true)
+			.select(".confirmation")
+			// The standard green looks bad against the darker background.
+			.style("color", "lime")
+			.style("opacity", 1);
 		}
 	    }
 	),	
+
+	spec.button(
+	    "Delete",
+	    function(result) {
+		if (result === title) {
+		    setTitle(null);
+		    onNew();
+		}		
+		onDelete(result);
+	    },
+	    {
+		onlineOffline: {
+		    online: true,
+		    offline: false
+		},
+		embeddedStandalone: {
+		    embedded: false,
+		    standalone: true
+		},
+		search: {}
+	    }
+	),
 
 	spec.button(
 	    "Save",
@@ -146,28 +187,6 @@ module.exports = function(spec) {
 		    excludeTerms: spec.matchEmpty,
 		    includeSearchTerm: true
 		}
-	    }
-	),
-
-	spec.button(
-	    "Delete",
-	    function(result) {
-		if (result === title) {
-		    setTitle(null);
-		    onNew();
-		}		
-		onDelete(result);
-	    },
-	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		},
-		search: {}
 	    }
 	),
 

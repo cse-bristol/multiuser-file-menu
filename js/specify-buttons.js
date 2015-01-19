@@ -108,6 +108,8 @@ module.exports = function(defaultCollection) {
 	 options.hooks is optional, and should be a function which takes a d3 selection. The d3 selection will be the button. Hooks can be used to modify the button. If not specified, it will default to a noop function.
 
 	 options.element is optional, and should be the name of an html element to use. If not specified, it will default to a div.
+
+	 options.confirm is option, and should be either true of false. It causes a tick to appear and then fade whenever the button is clicked. It will default to 'true'.
 	 */
 	button: function(text, f, options) {
 	    if (!typeof(text) === 'string') {
@@ -139,6 +141,13 @@ module.exports = function(defaultCollection) {
 	    } else if (typeof(options.element) !== 'string') {
 		throw new Error("If element is specified, it must be a string, was: " + options.element);
 	    }
+
+	    if (options.confirmation === undefined) {
+		options.confirmation = true;
+		
+	    } else if (typeof(options.confirm) !== 'boolean') {
+		throw new Error("If confirm is specified, it must be true or false, was: " + options.confirm);
+	    }
 	    
 	    return {
 		text: text,
@@ -148,7 +157,8 @@ module.exports = function(defaultCollection) {
 		embeddedStandalone: options.embeddedStandalone,
 		search: options.search,
 		hooks: options.hooks,
-		element: options.element
+		element: options.element,
+		confirm: options.confirm
 	    };
 	}
     };
