@@ -32,9 +32,9 @@ module.exports = function(spec) {
 	    onNew();
 	},
 
-	open = function(name) {
+	open = function(name, version) {
 	    setTitle(name);
-	    onOpen(name);
+	    onOpen(name, version);
 	};
 
     var standardButtons = [

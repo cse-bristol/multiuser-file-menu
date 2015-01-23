@@ -4,6 +4,7 @@
 
 var _ = require("lodash"),
     helpers = require("./helpers.js"),
+    isNum = helpers.isNum,
     noop = helpers.noop,
     callbacks = helpers.callbackHandler;
 
@@ -12,17 +13,37 @@ var _ = require("lodash"),
 
  Translates things the user does with the document control into actions on the backend.
  */
-module.exports = function(collection, backend, documentControl, serialize, deserialize, getModel, setModel, freshModel) {
+module.exports = function(collection, backend, documentControl, serialize, deserialize, getModel, setModelToObject, freshModel) {
     var doc,
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
 	writing = false,
+
+	/*
+	 Doc version will be set to the version when we load a historical document.
+
+	 Null means always use the latest version, and is used in other situations.
+	 */
+	docVersion = null,
+	onVersionChanged = callbacks(),
+	setVersion = function(val) {
+	    docVersion = val;
+	    onVersionChanged(val);
+	},
 	
 	autoSave = false,
 	onAutoSaveChanged = callbacks(),
 	setAutoSave = function(val) {
 	    autoSave = val;
 	    onAutoSaveChanged(val);
+	},
+
+	/*
+	 A helpful wrapper to make sure that we poke the version when we change the model.
+	 */
+	setModel = function(obj, version) {
+	    setModelToObject(obj);
+	    setVersion(version);
 	},
 	
 	onOp = callbacks(),
@@ -65,26 +86,42 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	    backend.load(collection, name, f);
 	};
     
-    documentControl.onOpen(function(name) {
-	loadFromCollection(
-	    name,
-	    function(loaded) {
-		setDoc(loaded);
-		var snapshot = doc.getSnapshot();
-		
-		if (snapshot) {
+    documentControl.onOpen(function(name, version) {
+	if (isNum(version)) {
+	    backend.loadVersion(
+		collection,
+		name,
+		version,
+		function(historicalDoc) {
+		    setDoc(null);
 		    setModel(
-			deserialize(snapshot)
+			deserialize(historicalDoc),
+			version
 		    );
-		    context = doc.createContext();
-		    
-		} else {
-		    var model = freshModel();
-		    saveDoc(model);
-		    setModel(model);
 		}
-	    }
-	);
+	    );
+	    
+	} else {
+	    loadFromCollection(
+		name,
+		function(loaded) {
+		    setDoc(loaded);
+		    var snapshot = doc.getSnapshot();
+		    
+		    if (snapshot) {
+			setModel(
+			    deserialize(snapshot)
+			);
+			context = doc.createContext();
+			
+		    } else {
+			var model = freshModel();
+			saveDoc(model);
+			setModel(model);
+		    }
+		}
+	    );
+	}
     });
 
     documentControl.onDelete(function(name) {
@@ -155,6 +192,12 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		}
 	    );
 	},
+
+	getVersion: function() {
+	    return docVersion;
+	},
+
+	onVersionChanged: onVersionChanged.add,
 
 	onAutoSaveChanged: onAutoSaveChanged.add,
 

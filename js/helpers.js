@@ -27,6 +27,9 @@ module.exports = {
 
 	return f;
     },
+    isNum: function (n) {
+	return !isNaN(parseFloat(n)) && isFinite(n);
+    },    
     noop: function() {
     }
 };

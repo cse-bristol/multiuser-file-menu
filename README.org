@@ -1,13 +1,11 @@
 * Multi User File Menu
 Provides some UI controls and a search box for managing documents. These controls resemble the familiar controls you might find in a file menu.
 
+Allows for retrieval of historical versions of documents.
+
 Note that there is no directory abstraction - only a flat space full of file names.
 
-For use in conjunction with [[http://sharejs.org/][ShareJS]]. Requires a running ShareJS server to actually save or open any documents, so read up on that first.
-
-** Future Development
- 1. Look more into the security of the Sharejs query API. Restrict as appropriate.
- 2. Parameterize which menu items will display.
+For use in conjunction with [[http://sharejs.org/][ShareJS]]. Depends on running our [[https://github.com/cse-bristol/process-model/tree/master/server][serverside ShareJS component]].
 
 ** Run the Demo
 First, clone the repository:
@@ -45,36 +43,6 @@ Serve index.html using any web server. For example, using python3 on a Debian sy
 #+BEGIN_SRC sh
   sudo python3 -m http.server 80 &
 #+END_SRC
-
-*** Pitfalls
-The demo expects to see a ShareJS server running on the some domain at the address /channel. You can modify this by passing a complete url as the last parameter when creating the menu.
-
-If you are unable to make the server example from the ShareJS website work, here is another [[https://github.com/cse-bristol/process-model/tree/master/server][example ShareJS server]] which you can run as follows:
-#+BEGIN_SRC sh
-  npm install;
-  node server.js;
-#+END_SRC
-
-I use nginx with the following configuration to serve both on the same port (this still requires a ShareJS server to be running on port 8080):
-#+BEGIN_SRC conf
-  server {
-         listen 80;
-         server_name localhost;
-         index index.html;
-
-         # Serve the demo page.
-         location /sharejs-file-menu {
-                  root: /home/my-user-name/sharejs-file-menu
-         }
-
-         # Redirect to the ShareJS server.
-         location /channel {
-                  proxy_pass http://localhost:8080;
-          }
-  }
-#+END_SRC
-
-
 
 ** Source Code
 [[https://github.com/cse-bristol/sharejs-file-menu][Get the source code.]]

@@ -20,7 +20,10 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	buttonSpec = buttonSpecFactory(collection),
 	standardButtons = standardButtonFactory(buttonSpec),
 	store = storeFactory(collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
-	queryString = queryStringFactory(standardButtons, collection),
+	queryString = queryStringFactory(
+	    standardButtons,
+	    collection
+	),
 	menuState = menuStateFactory(
 	    backend.onUp,
 	    backend.onDown,
@@ -28,7 +31,9 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    store.onAutoSaveChanged,
 	    store.autoSave,
 	    standardButtons.onTitleChange,
-	    standardButtons.getTitle
+	    standardButtons.getTitle,
+	    store.onVersionChanged,
+	    store.getVersion
 	);
 
     return {

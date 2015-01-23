@@ -3,9 +3,11 @@
 /*global module, require*/
 
 var _ = require("lodash"),
+    d3 = require("d3"),
     sharejs = require('../node_modules/share/lib/client/index.js'),
     BCSocket = require('../node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
     helpers = require("./helpers.js"),
+    isNum = helpers.isNum,
     callbacks = helpers.callbackHandler;
 
 /*
@@ -79,6 +81,23 @@ module.exports = function(url) {
 	    doc.whenReady(function() {
 		callback(doc);
 	    });
+	},
+
+	loadVersion: function(coll, name, version, callback) {
+	    if (!isNum(version)) {
+		throw new Error("Not a valid version " + version);
+	    }
+	    
+	    d3.json(
+		[url, "history", coll, name, version].join("/"),
+		function(error, json) {
+		    if (error) {
+			throw new Error(error.response);
+		    } else {
+			callback(json);
+		    }
+		}
+	    );
 	},
 
 	/*
