@@ -3,6 +3,7 @@
 /*global module, require*/
 
 var d3 = require("d3"),
+    _ = require("lodash"),
     helpers = require("./helpers.js"),
     isNum = helpers.isNum,
     callbacks = helpers.callbackHandler,
@@ -98,13 +99,20 @@ module.exports = function(spec) {
 		},			
 		embeddedStandalone: standalone,
 		hooks: function(el) {
+		    var delayedOpen = _.debounce(
+			function(val) {
+			    onOpen(title, val);
+			},
+			200
+		    );
+		    
 		    historySlider = el.append("input")
 			.attr("id", "history-slider")
 			.attr("type", "range")
 			.attr("min", 0)
 			.on("input", function(d, i) {
-			    historyNumber.node().value = this.value;
-			    onOpen(title, this.value);
+			    historyNumber.node().value = this.value;			    
+			    delayedOpen(this.value);
 			})
 			.on("click", function(d, i) {
 			    // Stop the history button from toggling.
@@ -117,7 +125,7 @@ module.exports = function(spec) {
 			.attr("min", 0)
 			.on("input", function(d, i) {
 			    historySlider.node().value = this.value;
-			    onOpen(title, this.value);
+			    delayedOpen(this.value);
 			})
 			.on("click", function(d, i) {
 			    // Stop the history button from toggling.
