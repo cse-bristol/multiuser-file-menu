@@ -3,6 +3,7 @@
 /*global module, require*/
 
 var helpers = require("./helpers.js"),
+    isNum = helpers.isNum,
     callbacks = helpers.callbackHandler;
 
 module.exports = function(
@@ -37,11 +38,15 @@ module.exports = function(
 	 */
 	readOnly: function() {
 	    return (
-		// Document created using the 'new' button
-		!getTitle() ||
+		m.untitled() ||
 		    // Historical versions
-		    getVersion() !== null
+		    isNum(getVersion())
 	    );
+	},
+
+	untitled: function() {
+	    // Document created using the 'new' button
+	    return !getTitle();
 	},
 
 	sync: function() {
@@ -52,7 +57,9 @@ module.exports = function(
 	 The values returned by the helper method should match up with the readWriteSync values used by specify-buttons.js.
 	 */
 	readWriteSync: function() {
-	    if (m.readOnly()) {
+	    if (m.untitled()) {
+		return "untitled";
+	    } else if (m.readOnly()) {
 		return "read";
 	    } else if (m.sync()) {
 		return "sync";

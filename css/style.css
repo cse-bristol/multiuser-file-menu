@@ -83,6 +83,14 @@ a.document-control-button {
     white-space: nowrap;
 }
 
+#history-slider {
+    width: 98%;
+}
+
+#history-number {
+    width:95%;
+}
+
 .search-result {
     padding: 0.2em;
 }

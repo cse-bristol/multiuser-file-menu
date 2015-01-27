@@ -4,7 +4,18 @@
 
 var d3 = require("d3"),
     helpers = require("./helpers.js"),
-    callbacks = helpers.callbackHandler;
+    isNum = helpers.isNum,
+    callbacks = helpers.callbackHandler,
+
+    online = {
+	online: true,
+	offline: false
+    },
+
+    standalone = {
+	embedded: false,
+	standalone: true
+    }; 
 
 /*
  Provides a set of pre-specified buttons: New, Open, Save as, and Delete.
@@ -21,6 +32,9 @@ module.exports = function(spec) {
 	onSaveAs = callbacks(),
 	onDelete = callbacks(),
 	onAutoSaveChange = callbacks(),
+
+	historySlider,
+	historyNumber,
 
 	setTitle = function(newTitle) {
 	    title = newTitle;
@@ -42,10 +56,7 @@ module.exports = function(spec) {
 	    "New",
 	    newDoc,
 	    {
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		}
+		embeddedStandalone: standalone
 	    }
 	),
 
@@ -53,158 +64,172 @@ module.exports = function(spec) {
 	    "Open",
 	    open,
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		},
+		onlineOffline: online,
+		embeddedStandalone: standalone,
 		search: {}
 	    }
-	),
-
-	spec.button(
-	    // Toggle: this half goes from manual -> auto
-	    "Auto",
+	)
+    ].concat(
+	spec.toggle(
+	    "History",
 	    function() {
-		/*
-		 Sync the document, then listen to further changes.
-		 */
-		onSaveAs(title);
-		onAutoSaveChange(true);
+		onOpen(title, historySlider.node().value);
 	    },
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
+		onlineOffline: online,
 		readWriteSync: {
+		    untitled: false,
 		    read: false,
 		    write: true,
-		    sync: false
-		},
-		confirm: false,
-		hooks: function(button) {
-		    button
-			.select(".confirmation")
-			.text("X")
-			.style("opacity", 1)
-			.style("color", "darkred");
-		}		
-	    }
-	),
-
-	spec.button(
-	    // Toggle: this half goes from auto -> manual
-	    "Auto",
-	    function() {
-		onAutoSaveChange(false);
-	    },
-	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
-		readWriteSync: {
-		    read: false,
-		    write: false,
 		    sync: true
-		},
-		confirm: false,
-		hooks: function(button) {
-		    button
-		    	.classed("active", true)
-			.select(".confirmation")
-			// The standard green looks bad against the darker background.
-			.style("color", "lime")
-			.style("opacity", 1);
-		}
-	    }
-	),	
-
-	spec.button(
-	    "Delete",
-	    function(result) {
-		if (result === title) {
-		    setTitle(null);
-		    onNew();
-		}		
-		onDelete(result);
+		},		
+		embeddedStandalone: standalone
 	    },
-	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		},
-		search: {}
-	    }
-	),
-
-	spec.button(
-	    "Save",
 	    function() {
-		onSaveAs(title);
+		onOpen(title, null);
 	    },
 	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
+		onlineOffline: online,
 		readWriteSync: {
-		    read: false,
-		    write: true,
+		    untitle: false,
+		    read: true, // TODO: not for 'new' documents.
+		    write: false,
 		    sync: false
-		}
-	    }
-	),
-	
-	spec.button(
-	    "Save as",
-	    function(result) {
-		if (title === result) {
-		    return;
-		}
-		
-		setTitle(result, false);
-		onSaveAs(result);
-	    },
-	    {
-		onlineOffline: {
-		    online: true,
-		    offline: false
-		},
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		},
-		search: {
-		    excludeTerms: spec.matchEmpty,
-		    includeSearchTerm: true
-		}
-	    }
-	),
+		},			
+		embeddedStandalone: standalone,
+		hooks: function(el) {
+		    historySlider = el.append("input")
+			.attr("id", "history-slider")
+			.attr("type", "range")
+			.attr("min", 0)
+			.on("input", function(d, i) {
+			    historyNumber.node().value = this.value;
+			    onOpen(title, this.value);
+			})
+			.on("click", function(d, i) {
+			    // Stop the history button from toggling.
+			    d3.event.stopPropagation();
+			});
 
-	spec.button(
-	    "Pop Out",
-	    function() {
-		window.open(document.location, "_blank");
-	    },
-	    {
-		embeddedStandalone: {
-		    embedded: true,
-		    standalone: false
+		    historyNumber = el.append("input")
+			.attr("type", "number")
+			.attr("id", "history-number")			    
+			.attr("min", 0)
+			.on("input", function(d, i) {
+			    historySlider.node().value = this.value;
+			    onOpen(title, this.value);
+			})
+			.on("click", function(d, i) {
+			    // Stop the history button from toggling.
+			    d3.event.stopPropagation();
+			});
 		}
 	    }
 	)
-    ];
+    )
 
-    return {
+	    .concat(
+
+		spec.toggle(
+		    "Auto",
+		    function() {
+			/*
+			 Sync the document, then listen to further changes.
+			 */
+			onSaveAs(title);
+			onAutoSaveChange(true);
+		    },
+		    {
+			onlineOffline: online,
+			readWriteSync: {
+			    untitled: false,
+			    read: false,
+			    write: true,
+			    sync: false
+			}
+		    },
+
+		    function() {
+			onAutoSaveChange(false);
+		    },
+		    {
+			onlineOffline: online,
+			readWriteSync: {
+			    untitled: false,
+			    read: false,
+			    write: false,
+			    sync: true
+			}
+		    }
+		))    
+	    .concat([
+		spec.button(
+		    "Delete",
+		    function(result) {
+			if (result === title) {
+			    setTitle(null);
+			    onNew();
+			}		
+			onDelete(result);
+		    },
+		    {
+			onlineOffline: online,
+			embeddedStandalone: standalone,
+			search: {}
+		    }
+		),
+
+		spec.button(
+		    "Save",
+		    function() {
+			onSaveAs(title);
+		    },
+		    {
+			onlineOffline: online,
+			readWriteSync: {
+			    untitle: false,
+			    read: false,
+			    write: true,
+			    sync: false
+			}
+		    }
+		),
+		
+		spec.button(
+		    "Save as",
+		    function(result) {
+			if (title === result) {
+			    return;
+			}
+			
+			setTitle(result, false);
+			onSaveAs(result);
+		    },
+		    {
+			onlineOffline: online,
+			embeddedStandalone: standalone,
+			search: {
+			    excludeTerms: spec.matchEmpty,
+			    includeSearchTerm: true
+			}
+		    }
+		),
+
+		spec.button(
+		    "Pop Out",
+		    function() {
+			window.open(document.location, "_blank");
+		    },
+		    {
+			embeddedStandalone: {
+			    embedded: true,
+			    standalone: false
+			}
+		    }
+		)
+	    ]);
+
+    var m =  {
 	buttonSpec: function() {
 	    return standardButtons;
 	},
@@ -224,6 +249,26 @@ module.exports = function(spec) {
 	onSaveAs: onSaveAs.add,
 	onDelete: onDelete.add,
 
-	onAutoSaveChange: onAutoSaveChange.add
+	onAutoSaveChange: onAutoSaveChange.add,
+
+	setMaxVersion: function(val) {
+	    if (isNum(val)) {
+	    
+		if (!isNum(historySlider.attr("max"))) {
+		    m.setVersion(val);
+		}
+		
+		historySlider.attr("max", val);
+		historyNumber.attr("max", val);
+	    }
+	},
+
+	setVersion: function(val) {
+	    if (isNum(val)) {
+		historySlider.node().value = val;
+		historyNumber.node().value = val;
+	    }
+	}
     };
+    return m;
 };

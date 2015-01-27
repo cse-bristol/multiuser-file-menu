@@ -42,6 +42,7 @@ module.exports = function(defaultCollection) {
 
 	if (!states.readWriteSync) {
 	    states.readWriteSync = {
+		untitled: true,
 		read: true,
 		write: true,
 		sync: true
@@ -91,9 +92,40 @@ module.exports = function(defaultCollection) {
 	} else if (typeof(options.includeSearchTerm) !== "boolean") {
 	    throw new Error("If includeSearchTerm is specified, it should be a boolean, was: " + options.includeSearchTerm);
 	}
-    };
+    },
+
+	disabledToggle = function(button) {
+	    button
+		.select(".confirmation")
+		.text("X")
+		.style("opacity", 1)
+		.style("color", "darkred");
+	},
+
+	enabledToggle = function(button) {
+	    button
+		.classed("active", true)
+		.select(".confirmation")
+	    // The standard green looks bad against the darker background.
+		.style("color", "lime")
+		.style("opacity", 1);	    
+	},
+
+	wrapHooks = function(options, toggleF) {
+	    if (options.hooks) {
+		var wrapped = options.hooks;
+		
+		options.hooks = function(button) {
+		    wrapped(button);
+		    toggleF(button);
+		};
+		
+	    } else {
+		options.hooks = toggleF;
+	    }
+	};
     
-    return {
+    var m =  {
 	matchEmpty: matchEmpty,
 
 	/*
@@ -160,6 +192,32 @@ module.exports = function(defaultCollection) {
 		element: options.element,
 		confirm: options.confirm
 	    };
+	},
+
+	/*
+	 Returns two buttons with the same name which work together as a toggle.
+	 */
+	toggle: function(text, enableF, disabledOptions, disableF, enabledOptions) {
+	    wrapHooks(disabledOptions, disabledToggle);
+	    wrapHooks(enabledOptions, enabledToggle);
+
+	    disabledOptions.confirm = false;
+	    enabledOptions.confirm = false;
+	    
+	    return [
+		m.button(
+		    text,
+		    enableF,
+		    disabledOptions
+		),
+		m.button(
+		    text,
+		    disableF,
+		    enabledOptions
+		)
+	    ];
 	}
     };
+
+    return m;
 };

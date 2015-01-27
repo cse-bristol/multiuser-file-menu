@@ -20,15 +20,14 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	writing = false,
 
 	/*
-	 Doc version will be set to the version when we load a historical document.
-
-	 Null means always use the latest version, and is used in other situations.
+	 docVersion will be set to the version when we load a historical document. If we are in a current 'live' document (whether autosave or not), it should be set to null. 
 	 */
 	docVersion = null,
 	onVersionChanged = callbacks(),
-	setVersion = function(val) {
-	    docVersion = val;
-	    onVersionChanged(val);
+	setVersion = function(v, latestV) {
+	    docVersion = v;
+	    documentControl.setMaxVersion(latestV);
+	    onVersionChanged(v);
 	},
 	
 	autoSave = false,
@@ -41,9 +40,9 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	/*
 	 A helpful wrapper to make sure that we poke the version when we change the model.
 	 */
-	setModel = function(obj, version) {
+	setModel = function(obj, version, latestAvailableVersion) {
 	    setModelToObject(obj);
-	    setVersion(version);
+	    setVersion(version, latestAvailableVersion);
 	},
 	
 	onOp = callbacks(),
@@ -92,12 +91,23 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		collection,
 		name,
 		version,
-		function(historicalDoc) {
+		function(historical) {
 		    setDoc(null);
 		    setModel(
-			deserialize(historicalDoc),
-			version
+			deserialize(historical.doc),
+			version,
+			historical.latestV
 		    );
+		},
+		function(error) {
+		    if (error.indexOf("deleted")) {
+			setDoc(null);
+			setModel(
+			    freshModel(),
+			    version,
+			    null
+			);
+		    }
 		}
 	    );
 	    
@@ -110,14 +120,20 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		    
 		    if (snapshot) {
 			setModel(
-			    deserialize(snapshot)
+			    deserialize(snapshot),
+			    null,
+			    doc.version
 			);
 			context = doc.createContext();
 			
 		    } else {
 			var model = freshModel();
 			saveDoc(model);
-			setModel(model);
+			setModel(
+			    model,
+			    null,
+			    doc.version
+			);
 		    }
 		}
 	    );
@@ -157,6 +173,8 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 
     documentControl.onAutoSaveChange(setAutoSave);
 
+    onVersionChanged.add(documentControl.setVersion);
+    
     return {
 	writeOp: function(op) {
 	    if (autoSave) {
@@ -165,6 +183,7 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		    // If we don't have a document context yet, there's no point trying to send operations to it.
 		    if (context) {
 			context.submitOp([op], noop);
+			setVersion(null, doc.version);
 		    }
 		} finally {
 		    writing = false;

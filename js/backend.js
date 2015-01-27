@@ -83,7 +83,13 @@ module.exports = function(url) {
 	    });
 	},
 
-	loadVersion: function(coll, name, version, callback) {
+	/*
+	 Object returns has 3 properties:
+	 doc - the deserialized json snapshot
+	 v - the version of that snapshot
+	 latestV - the most recent version of the document available
+	 */
+	loadVersion: function(coll, name, version, callback, errback) {
 	    if (!isNum(version)) {
 		throw new Error("Not a valid version " + version);
 	    }
@@ -92,7 +98,7 @@ module.exports = function(url) {
 		[url, "history", coll, name, version].join("/"),
 		function(error, json) {
 		    if (error) {
-			throw new Error(error.response);
+			errback(error.response);
 		    } else {
 			callback(json);
 		    }
