@@ -59,6 +59,7 @@ module.exports = function(standardButtons, collection) {
 	    
 	} else {
 	    delete query.name;
+	    delete query.v;	    
 	    url.search = null;
 	    window.history.pushState(null, "", URL.format(url));
 	    document.title = "Untitled " + " - " + collection;	    
