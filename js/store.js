@@ -100,14 +100,8 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		    );
 		},
 		function(error) {
-		    if (error.indexOf("deleted")) {
-			setDoc(null);
-			setModel(
-			    freshModel(),
-			    version,
-			    null
-			);
-		    }
+		    setVersion(version, null);
+		    documentControl.erroneousVersion();
 		}
 	    );
 	    

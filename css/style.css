@@ -91,6 +91,10 @@ a.document-control-button {
     width:95%;
 }
 
+.erroneous-version {
+    color:red;
+}
+
 .search-result {
     padding: 0.2em;
 }

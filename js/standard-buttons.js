@@ -275,7 +275,12 @@ module.exports = function(spec) {
 	    if (isNum(val)) {
 		historySlider.node().value = val;
 		historyNumber.node().value = val;
+		historyNumber.classed("erroneous-version", false);		
 	    }
+	},
+
+	erroneousVersion: function() {
+	    historyNumber.classed("erroneous-version", true);
 	}
     };
     return m;
