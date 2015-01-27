@@ -69,13 +69,21 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		}
 	    }
 	},
-	/*
-	 Document must have been deleted for this to work.
-	 */
+	
 	saveDoc = function(model) {
 	    writing = true;
+
+	    var snapshot = doc.getSnapshot(),
+		serialized = serialize(model);
 	    
-	    doc.create("json0", serialize(model));
+	    if (!snapshot) {
+		doc.create("json0", serialized);
+	    } else {
+		doc.submitOp([{
+		    p: [],
+		    oi: serialized
+		}]);
+	    }
 	    context = doc.createContext();
 	    
 	    writing = false;
@@ -140,24 +148,16 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 
     documentControl.onSaveAs(function(name) {
 	if (doc && doc.name === name) {
-	    /*
-	     Overwrite the contents of the document without reloading it.  
-	     */
-	    doc.del();
 	    saveDoc(getModel());
-	}
-	
-	loadFromCollection(
-	    name,
-	    function(loaded) {
-		setDoc(loaded);
-		var snapshot = loaded.getSnapshot();
-		if (snapshot) {
-		    doc.del();
-		}
 
-		saveDoc(getModel());
-	    });
+	} else {
+	    loadFromCollection(
+		name,
+		function(loaded) {
+		    setDoc(loaded);
+		    saveDoc(getModel());
+		});
+	}
     });
 
     documentControl.onNew(function() {
