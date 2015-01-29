@@ -64,13 +64,16 @@ module.exports = function(url) {
     return {
 	search: function(coll, text, callback, errback) {
 	    // TODO *insecure*. Anyone could modify the Javascript in arbitrary ways here. Can we fire this from the server side and sanitize the text variable?
-	    connection.createFetchQuery(coll, {_id: {$regex: text}}, {}, function(error, results, extraData) {
-		if (error) {
-		    errback(error);
-		} else {
-		    callback(_.pluck(results, "name"));
+	    d3.json(
+		[url, "search", coll].join("/") + "?q=" + text,
+		function(error, results) {
+		    if (error) {
+			errback(error);
+		    } else {
+			callback(_.pluck(results, "name"));
+		    }
 		}
-	    });
+	    );
 	},
 
 	load: function(coll, name, callback) {
