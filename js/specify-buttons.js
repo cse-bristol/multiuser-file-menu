@@ -174,8 +174,8 @@ module.exports = function(defaultCollection) {
 		throw new Error("If element is specified, it must be a string, was: " + options.element);
 	    }
 
-	    if (options.confirmation === undefined) {
-		options.confirmation = true;
+	    if (options.confirm === undefined) {
+		options.confirm = true;
 		
 	    } else if (typeof(options.confirm) !== 'boolean') {
 		throw new Error("If confirm is specified, it must be true or false, was: " + options.confirm);
