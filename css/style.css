@@ -95,6 +95,12 @@ a.document-control-button {
     color:red;
 }
 
+#offline-indicator {
+    text-decoration: none;
+    pointer-events: none;
+    cursor: default;
+}
+
 .search-result {
     padding: 0.2em;
 }

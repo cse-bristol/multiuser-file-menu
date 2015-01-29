@@ -50,10 +50,27 @@ module.exports = function(spec) {
 	open = function(name, version) {
 	    setTitle(name);
 	    onOpen(name, version);
-	};
+	},
 
-    var standardButtons = [
-	spec.button(
+	offlineIndicator = spec.button(
+	    "Offline",
+	    function() {
+		// Noop
+	    },
+	    {
+		onlineOffline: {
+		    online: false,
+		    offline: true
+		},
+		confirm: false,
+		hooks: function(el) {
+		    el.attr("id", "offline-indicator")
+			.classed("active", true);
+		}
+	    }
+	),
+
+	newButton = spec.button(
 	    "New",
 	    newDoc,
 	    {
@@ -61,7 +78,7 @@ module.exports = function(spec) {
 	    }
 	),
 
-	spec.button(
+	openButton = spec.button(
 	    "Open",
 	    open,
 	    {
@@ -69,9 +86,9 @@ module.exports = function(spec) {
 		embeddedStandalone: standalone,
 		search: {}
 	    }
-	)
-    ].concat(
-	spec.toggle(
+	),
+
+	historyButtons = spec.toggle(
 	    "History",
 	    function() {
 		onOpen(title, historySlider.node().value);
@@ -133,109 +150,123 @@ module.exports = function(spec) {
 			});
 		}
 	    }
-	)
-    )
+	),
 
-	    .concat(
+	autosaveButtons = spec.toggle(
+	    "Auto",
+	    function() {
+		/*
+		 Sync the document, then listen to further changes.
+		 */
+		onSaveAs(title);
+		onAutoSaveChange(true);
+	    },
+	    {
+		onlineOffline: online,
+		readWriteSync: {
+		    untitled: false,
+		    read: false,
+		    write: true,
+		    sync: false
+		}
+	    },
 
-		spec.toggle(
-		    "Auto",
-		    function() {
-			/*
-			 Sync the document, then listen to further changes.
-			 */
-			onSaveAs(title);
-			onAutoSaveChange(true);
-		    },
-		    {
-			onlineOffline: online,
-			readWriteSync: {
-			    untitled: false,
-			    read: false,
-			    write: true,
-			    sync: false
-			}
-		    },
+	    function() {
+		onAutoSaveChange(false);
+	    },
+	    {
+		onlineOffline: online,
+		readWriteSync: {
+		    untitled: false,
+		    read: false,
+		    write: false,
+		    sync: true
+		}
+	    }
+	),
 
-		    function() {
-			onAutoSaveChange(false);
-		    },
-		    {
-			onlineOffline: online,
-			readWriteSync: {
-			    untitled: false,
-			    read: false,
-			    write: false,
-			    sync: true
-			}
-		    }
-		))    
-	    .concat([
-		spec.button(
-		    "Delete",
-		    function(result) {
-			if (result === title) {
-			    setTitle(null);
-			    onNew();
-			}		
-			onDelete(result);
-		    },
-		    {
-			onlineOffline: online,
-			embeddedStandalone: standalone,
-			search: {}
-		    }
-		),
+	deleteButton = spec.button(
+	    "Delete",
+	    function(result) {
+		if (result === title) {
+		    setTitle(null);
+		    onNew();
+		}		
+		onDelete(result);
+	    },
+	    {
+		onlineOffline: online,
+		embeddedStandalone: standalone,
+		search: {}
+	    }
+	),
 
-		spec.button(
-		    "Save",
-		    function() {
-			onSaveAs(title);
-		    },
-		    {
-			onlineOffline: online,
-			readWriteSync: {
-			    untitle: false,
-			    read: false,
-			    write: true,
-			    sync: false
-			}
-		    }
-		),
+	saveButton = spec.button(
+	    "Save",
+	    function() {
+		onSaveAs(title);
+	    },
+	    {
+		onlineOffline: online,
+		readWriteSync: {
+		    untitle: false,
+		    read: false,
+		    write: true,
+		    sync: false
+		}
+	    }
+	),
+	
+	saveAsButton = spec.button(
+	    "Save as",
+	    function(result) {
+		if (title === result) {
+		    return;
+		}
 		
-		spec.button(
-		    "Save as",
-		    function(result) {
-			if (title === result) {
-			    return;
-			}
-			
-			setTitle(result, false);
-			onSaveAs(result);
-		    },
-		    {
-			onlineOffline: online,
-			embeddedStandalone: standalone,
-			search: {
-			    excludeTerms: spec.matchEmpty,
-			    includeSearchTerm: true
-			}
-		    }
-		),
+		setTitle(result, false);
+		onSaveAs(result);
+	    },
+	    {
+		onlineOffline: online,
+		embeddedStandalone: standalone,
+		search: {
+		    excludeTerms: spec.matchEmpty,
+		    includeSearchTerm: true
+		}
+	    }
+	),
 
-		spec.button(
-		    "Pop Out",
-		    function() {
-			window.open(document.location, "_blank");
-		    },
-		    {
-			embeddedStandalone: {
-			    embedded: true,
-			    standalone: false
-			}
-		    }
-		)
-	    ]);
+	popOutButton = spec.button(
+	    "Pop Out",
+	    function() {
+		window.open(document.location, "_blank");
+	    },
+	    {
+		embeddedStandalone: {
+		    embedded: true,
+		    standalone: false
+		}
+	    }
+	),	
+	
+
+	standardButtons = [
+	    offlineIndicator,
+	    popOutButton,
+	    newButton,
+	    openButton,
+	    deleteButton,
+	    saveAsButton,	    
+
+	    historyButtons[0],
+	    historyButtons[1],
+
+	    autosaveButtons[0],
+	    autosaveButtons[1],
+
+	    saveButton
+	];
 
     var m =  {
 	buttonSpec: function() {
@@ -261,7 +292,7 @@ module.exports = function(spec) {
 
 	setMaxVersion: function(val) {
 	    if (isNum(val)) {
-	    
+		
 		if (!isNum(historySlider.attr("max"))) {
 		    m.setVersion(val);
 		}
