@@ -48,6 +48,7 @@ module.exports = function(container, searchFunction, onHide, options) {
 
     var search = form.append("input")
 	    .attr("type", "text")
+	    .attr("autocomplete", "off")
 	    .attr("id", "search")
     // Allow a little time for the user to finish typing.
 	    .on("input", function(d, i) {
