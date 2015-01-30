@@ -53,7 +53,7 @@ module.exports = function(spec) {
 	},
 
 	offlineIndicator = spec.button(
-	    "Offline",
+	    "Connecting",
 	    function() {
 		// Noop
 	    },
@@ -65,7 +65,8 @@ module.exports = function(spec) {
 		confirm: false,
 		hooks: function(el) {
 		    el.attr("id", "offline-indicator")
-			.classed("active", true);
+			.classed("active", true)
+			.style("width", "8em");
 		}
 	    }
 	),
