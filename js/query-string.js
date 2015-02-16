@@ -71,6 +71,9 @@ module.exports = function(standardButtons, collection) {
     standardButtons.onNew(toURL);
     standardButtons.onOpen(toURL);
     standardButtons.onSaveAs(toURL);
-    
-    fromURL();
+
+    return {
+	fromURL: fromURL,
+	toURL: toURL
+    };
 };
