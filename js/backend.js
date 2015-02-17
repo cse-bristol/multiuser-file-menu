@@ -84,7 +84,7 @@ module.exports = function(url) {
 	 There is no connection at all, or the connection there is has fallen right over.
 	 */
 	isDown = function() {
-	    return !connection || connected.state === stopped;
+	    return !connection || connection.state === stopped;
 	},
 
 	m = {

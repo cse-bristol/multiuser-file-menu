@@ -116,3 +116,5 @@ menu.buildMenu(
 	    }
 	)
     ]);
+
+menu.queryString.fromURL();
