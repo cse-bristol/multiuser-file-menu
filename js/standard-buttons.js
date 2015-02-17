@@ -62,6 +62,7 @@ module.exports = function(spec) {
 		    online: false,
 		    offline: true
 		},
+		embeddedStandalone: standalone,
 		confirm: false,
 		hooks: function(el) {
 		    el.attr("id", "offline-indicator")

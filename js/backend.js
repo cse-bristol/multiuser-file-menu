@@ -8,7 +8,12 @@ var _ = require("lodash"),
     BCSocket = require('../node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
     helpers = require("./helpers.js"),
     isNum = helpers.isNum,
-    callbacks = helpers.callbackHandler;
+    callbacks = helpers.callbackHandler,
+
+    connected = "connected",
+    connecting = "connecting",
+    disconnected = "disconnected",
+    stopped = "stopped";
 
 /*
  Connects to a sharejs server.
@@ -16,166 +21,157 @@ var _ = require("lodash"),
  Exposes some functions about it.
  */
 module.exports = function(url) {
-    var connection = new sharejs.Connection(
-	new BCSocket(
-	    url,
-	    {
-		reconnect: true
-	    })
-    ),
+    var ensureConnected = function() {
+	if (isDown()) {
+	    connection = new sharejs.Connection(
+		new BCSocket(
+		    url,
+		    {
+			reconnect: true
+		    })
+	    );
+
+	    // TODO remove this once we're happy, or perhaps turn it into a compile flag?
+	    connection.debug = true;
+
+	    [connected, connecting, disconnected, stopped]
+		.forEach(function(state) {
+		    connection.on(state, function() {
+			if (state !== lastState) {
+			    lastState = state;
+			    switch(state) {
+			    case connected:
+				onUp();
+				break;
+			    case connecting:
+				// We don't yet know whether the server is up or down.
+				break;
+			    case disconnected:
+			    case stopped:
+				onDown();
+				break;
+			    default:
+				throw new Error("Unknown connection state " + state);
+			    }
+			}
+			if (isUp()) {
+			    onUp();
+			} else {
+			    onDown();
+			}
+		    });
+		});
+	}
+    },
+
+	maybeDiscardConnection = function() {
+	    if (!stayConnected && !isDown()) {
+		connection.disconnect();
+	    }
+	},
+
+	stayConnected = false,
+	connection,
 	onUp = callbacks(),
 	onDown = callbacks(),
-	lastState = connection.state,
+	lastState,
+
 	isUp = function() {
-	    return connection && connection.state === "connected";
-	};
-
-    // TODO remove this once we're happy.
-    connection.debug = true;
-
-    ["connected", "connecting", "disconnected", "stopped"]
-	.forEach(function(state) {
-	    connection.on(state, function() {
-		if (state !== lastState) {
-		    lastState = state;
-		    switch(state) {
-		    case "connected":
-			onUp();
-			break;
-		    case "connecting":
-			// We don't yet know whether the server is up or down.
-			break;
-		    case "disconnected":
-		    case "stopped":
-			onDown();
-			break;
-		    default:
-			throw new Error("Unknown connection state " + state);
-		    }
-		}
-		if (isUp()) {
-		    onUp();
-		} else {
-		    onDown();
-		}
-	    });
-	});
-
-    return {
-	search: function(coll, text, callback, errback) {
-	    d3.json(
-		[url, "search", coll].join("/") + "?q=" + text,
-		function(error, results) {
-		    if (error) {
-			errback(error);
-		    } else {
-			callback(_.pluck(results, "name"));
-		    }
-		}
-	    );
-	},
-
-	load: function(coll, name, callback) {
-	    var doc = connection.get(coll, name.toLowerCase());
-	    if (!doc.subscribed) {
-		doc.subscribe();
-	    }
-	    doc.whenReady(function() {
-		callback(doc);
-	    });
+	    return connection && connection.state === connected;
 	},
 
 	/*
-	 Object returns has 3 properties:
-	 doc - the deserialized json snapshot
-	 v - the version of that snapshot
-	 latestV - the most recent version of the document available
+	 There is no connection at all, or the connection there is has fallen right over.
 	 */
-	loadVersion: function(coll, name, version, callback, errback) {
-	    if (!isNum(version)) {
-		throw new Error("Not a valid version " + version);
-	    }
-	    
-	    d3.json(
-		[url, "history", coll, name, version].join("/"),
-		function(error, json) {
-		    if (error) {
-			errback(error.response);
-		    } else {
-			callback(json);
+	isDown = function() {
+	    return !connection || connected.state === stopped;
+	},
+
+	m = {
+	    search: function(coll, text, callback, errback) {
+		d3.json(
+		    [url, "search", coll].join("/") + "?q=" + text,
+		    function(error, results) {
+			if (error) {
+			    errback(error);
+			} else {
+			    callback(_.pluck(results, "name"));
+			}
 		    }
+		);
+	    },
+
+	    load: function(coll, name, callback) {
+		ensureConnected();
+		var doc = connection.get(coll, name.toLowerCase());
+		if (!doc.subscribed) {
+		    doc.subscribe();
 		}
-	    );
-	},
-
-	/*
-	 When the server is not connected, it's still OK to get a document if we know that it doesn't already exist.
-
-	 To ensure this, the name passed here should be a GUID.
-	 */
-	loadOffline: function(coll, name) {
-	    var doc = connection.get(coll, name.toLowerCase());
-	    if (!doc.subscribed) {
-		doc.subscribe();
-	    }
-	    return doc;
-	},
-
-	deleteDoc: function(coll, name) {
-	    var toDelete = connection.get(coll, name.toLowerCase());
-	    if (!toDelete.subscribed) {
-		toDelete.subscribe();
-	    }
-	    toDelete.whenReady(function() {
-		toDelete.del();
-		toDelete.destroy();
-	    });
-	},
-
-	onUp: onUp.add,
-	onDown: onDown.add,
-	isUp: isUp,
-
-	/*
-	 Schedule functions to run when we know for sure whether the server is up or down.
-	 */
-	waitForConnectOrDisconnect: function(onConnected, onDisconnected) {
-	    if (connection.state === "connecting") {
-		var executed = false;
-		
-		connection.once("connected", function() {
-		    if (!executed) {
-			executed = true;
-			onConnected();
-		    }
+		doc.whenReady(function() {
+		    callback(doc);
+		    maybeDiscardConnection();
 		});
+	    },
 
-		var fail = function() {
-		    if (!executed) {
-			executed = true;
-			onDisconnected();
-		    }
-		};
-
-		connection.once("disconnected", fail);
-		connection.once("stopped", fail);
+	    /*
+	     Object returns has 3 properties:
+	     doc - the deserialized json snapshot
+	     v - the version of that snapshot
+	     latestV - the most recent version of the document available
+	     */
+	    loadVersion: function(coll, name, version, callback, errback) {
+		if (!isNum(version)) {
+		    throw new Error("Not a valid version " + version);
+		}
 		
-	    } else if (isUp()) {
-		onConnected();
-	    } else {
-		onDisconnected();
-	    }
-	},
+		d3.json(
+		    [url, "history", coll, name, version].join("/"),
+		    function(error, json) {
+			if (error) {
+			    errback(error.response);
+			} else {
+			    callback(json);
+			}
+		    }
+		);
+	    },
 
-	/*
-	 Schedule function to run the next time the server is up.
-	 */
-	waitForConnect: function(callback) {
-	    if (isUp()) {
-		callback();
-	    } else {
-		connection.once("connected", callback);
+	    /*
+	     When the server is not connected, it's still OK to get a document if we know that it doesn't already exist.
+
+	     To ensure this, the name passed here should be a GUID.
+	     */
+	    loadOffline: function(coll, name) {
+		ensureConnected();
+		var doc = connection.get(coll, name.toLowerCase());
+		if (!doc.subscribed) {
+		    doc.subscribe();
+		}
+		maybeDiscardConnection();
+		return doc;
+	    },
+
+	    deleteDoc: function(coll, name) {
+		ensureConnected();
+		var toDelete = connection.get(coll, name.toLowerCase());
+		if (!toDelete.subscribed) {
+		    toDelete.subscribe();
+		}
+		toDelete.whenReady(function() {
+		    toDelete.del();
+		    toDelete.destroy();
+		    maybeDiscardConnection();
+		});
+	    },
+
+	    onUp: onUp.add,
+	    onDown: onDown.add,
+	    isUp: isUp,
+
+	    stayConnected: function() {
+		stayConnected = true;
+		ensureConnected();
 	    }
-	}
-    };
+	};
+    return m;
 };

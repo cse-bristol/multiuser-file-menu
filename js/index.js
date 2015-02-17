@@ -28,6 +28,7 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    backend.onUp,
 	    backend.onDown,
 	    backend.isUp,
+	    backend.stayConnected,
 	    store.onAutoSaveChanged,
 	    store.autoSave,
 	    standardButtons.onTitleChange,
