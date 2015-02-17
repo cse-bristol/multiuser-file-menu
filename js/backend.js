@@ -31,8 +31,7 @@ module.exports = function(url) {
 		    })
 	    );
 
-	    // TODO remove this once we're happy, or perhaps turn it into a compile flag?
-	    connection.debug = true;
+	    connection.debug = debug;
 
 	    [connected, connecting, disconnected, stopped]
 		.forEach(function(state) {
@@ -75,6 +74,8 @@ module.exports = function(url) {
 	onUp = callbacks(),
 	onDown = callbacks(),
 	lastState,
+
+	debug = false,
 
 	isUp = function() {
 	    return connection && connection.state === connected;
@@ -170,6 +171,14 @@ module.exports = function(url) {
 
 	    stayConnected: function() {
 		stayConnected = true;
+		ensureConnected();
+	    },
+
+	    debug: function() {
+		debug = true;
+		if (connection) {
+		    connection.disconnect();
+		}
 		ensureConnected();
 	    }
 	};

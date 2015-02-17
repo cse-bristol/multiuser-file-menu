@@ -12,10 +12,14 @@ var d3 = require("d3"),
 
  When the web page is loaded, loads the document from the name field of the query string.  
  */
-module.exports = function(standardButtons, collection) {
+module.exports = function(standardButtons, collection, debug) {
     var fromURL = function() {
 	var query = URL.parse(window.location.href, true).query;
 
+	if (query.debug) {
+	    debug();
+	}
+	
 	if (query.name) {
 	    var title = decodeURIComponent(query.name),
 		version = query.v ? decodeURIComponent(query.v) : null;

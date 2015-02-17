@@ -22,7 +22,8 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	store = storeFactory(collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
 	queryString = queryStringFactory(
 	    standardButtons,
-	    collection
+	    collection,
+	    backend.debug
 	),
 	menuState = menuStateFactory(
 	    backend.onUp,
