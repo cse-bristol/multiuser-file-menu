@@ -63,7 +63,6 @@ module.exports = function(url) {
 
     return {
 	search: function(coll, text, callback, errback) {
-	    // TODO *insecure*. Anyone could modify the Javascript in arbitrary ways here. Can we fire this from the server side and sanitize the text variable?
 	    d3.json(
 		[url, "search", coll].join("/") + "?q=" + text,
 		function(error, results) {
