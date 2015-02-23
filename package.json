@@ -6,7 +6,11 @@
     "url": "https://github.com/cse-bristol/multiuser-file-menu",
     "license": "MIT",
     "main": "js/index.js",
-
+    "repository": {
+	"type": "git",
+	"url": "git://github.com/cse-bristol/multiuser-file-menu.git"
+    },
+    
     "directories": {
 	"js": "js",
 	"css": "css"
