@@ -123,3 +123,7 @@ a.document-control-button {
 .search-result-fabricated {
     background-color: pink;
 }
+
+.highlighted-result {
+    border: 1px dashed blue;
+}
