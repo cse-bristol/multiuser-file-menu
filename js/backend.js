@@ -13,7 +13,12 @@ var _ = require("lodash"),
     connected = "connected",
     connecting = "connecting",
     disconnected = "disconnected",
-    stopped = "stopped";
+    stopped = "stopped",
+
+    /*
+     When the commands counter is 0, everything that was trying to use the backend has stopped, so we are allowed to discard our connection.
+     */
+    commandsCounter = 0;
 
 /*
  Connects to a sharejs server.
@@ -21,7 +26,11 @@ var _ = require("lodash"),
  Exposes some functions about it.
  */
 module.exports = function(url) {
-    var ensureConnected = function() {
+    var ensureConnected = function(dontIncrement) {
+	if (!dontIncrement) {
+	    commandsCounter += 1;
+	}
+	
 	if (isDown()) {
 	    connection = new sharejs.Connection(
 		new BCSocket(
@@ -64,12 +73,15 @@ module.exports = function(url) {
     },
 
 	maybeDiscardConnection = function() {
-	    if (!stayConnected && !isDown()) {
+	    if (commandsCounter > 0) {
+		commandsCounter -= 1;
+	    }
+	    
+	    if (commandsCounter === 0 && !isDown()) {
 		connection.disconnect();
 	    }
 	},
 
-	stayConnected = false,
 	connection,
 	onUp = callbacks(),
 	onDown = callbacks(),
@@ -169,8 +181,10 @@ module.exports = function(url) {
 	    onDown: onDown.add,
 	    isUp: isUp,
 
+	    /*
+	     Since this ensureConnected is not paired with a maybeDiscardConnection, it will keep the connection open forever.
+	     */
 	    stayConnected: function() {
-		stayConnected = true;
 		ensureConnected();
 	    },
 
@@ -179,7 +193,7 @@ module.exports = function(url) {
 		if (connection) {
 		    connection.disconnect();
 		}
-		ensureConnected();
+		ensureConnected(false);
 	    }
 	};
     return m;
