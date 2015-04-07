@@ -19,6 +19,12 @@
     -ms-user-select: none;    
 }
 
+@media print {
+    .document-control-item {
+    	display: none !important;
+    }
+}
+
 .document-control-button {
     opacity: 0.8;
     cursor: pointer;
