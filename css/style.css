@@ -76,6 +76,7 @@ a.document-control-button {
 #search {
     font-size: large;
     margin-left: 0.1em;
+    z-index: 999;
 }
 
 #search-results {
