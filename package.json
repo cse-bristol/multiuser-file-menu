@@ -20,6 +20,7 @@
 	"share": "0.7.3",
 	"lodash": "2.4.1",
 	"browserchannel": "2.0.0",
-	"d3": "3.5.3"
+	"d3": "3.5.3",
+	"iframe-anti-scrolljack": "git://github.com/cse-bristol/iframe-anti-scrolljack.git"
     }
 }

@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var backendFactory = require("./backend.js"),
+var iframeAntiScrolljack = require("iframe-anti-scrolljack"),
+    backendFactory = require("./backend.js"),
     menuFactory = require("./menu.js"),
     standardButtonFactory = require("./standard-buttons.js"),
     storeFactory = require("./store.js"),
@@ -16,6 +17,8 @@ var backendFactory = require("./backend.js"),
     }();
 
 module.exports = function(collection, serialize, deserialize, getModel, setModel, freshModel, url) {
+    iframeAntiScrolljack();
+    
     var backend = backendFactory(url ? url : defaultUrl),
 	buttonSpec = buttonSpecFactory(collection),
 	standardButtons = standardButtonFactory(buttonSpec),
