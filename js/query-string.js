@@ -13,7 +13,22 @@ var d3 = require("d3"),
  When the web page is loaded, loads the document from the name field of the query string.  
  */
 module.exports = function(standardButtons, collection, debug) {
-    var fromURL = function() {
+    var cameFromURL = true,
+
+	/*
+	 Add an entry to the browser's back button on any navigation action.
+
+	 Will not add history if we just loaded the page from the URL bar, by clicking a link in another web page, or by pressing the back button.
+	 */
+	addHistory = function(url) {
+	    if (cameFromURL) {
+		cameFromURL = false;
+	    } else {
+		window.history.pushState(null, "", URL.format(url));
+	    }
+	},
+    
+	fromURL = function() {
 	var query = URL.parse(window.location.href, true).query;
 
 	if (query.debug) {
@@ -32,6 +47,8 @@ module.exports = function(standardButtons, collection, debug) {
     };
 
     var toURL = function(name, version) {
+	console.log("toURL", name, version);
+	
 	var url = URL.parse(window.location.href, true),
 	    query = url.query;
 
@@ -54,7 +71,7 @@ module.exports = function(standardButtons, collection, debug) {
 		}
 		
 		url.search = null;
-		window.history.pushState(null, "", URL.format(url));
+		addHistory(url);
 		
 		document.title = name
 		    + (isNum(version) ? " v" + version : "")
@@ -65,13 +82,16 @@ module.exports = function(standardButtons, collection, debug) {
 	    delete query.name;
 	    delete query.v;	    
 	    url.search = null;
-	    window.history.pushState(null, "", URL.format(url));
+	    addHistory(url);
 	    document.title = "Untitled " + " - " + collection;	    
 	}
     };
 
-    d3.select(window).on("popstate", fromURL);
-    
+    d3.select(window).on("popstate", function() {
+	cameFromURL = true;
+	fromURL.apply(this, arguments);
+    });
+        
     standardButtons.onNew(toURL);
     standardButtons.onOpen(toURL);
     standardButtons.onSaveAs(toURL);
