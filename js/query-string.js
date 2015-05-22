@@ -47,8 +47,6 @@ module.exports = function(standardButtons, collection, debug) {
     };
 
     var toURL = function(name, version) {
-	console.log("toURL", name, version);
-	
 	var url = URL.parse(window.location.href, true),
 	    query = url.query;
 
