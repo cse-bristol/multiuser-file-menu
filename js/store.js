@@ -177,7 +177,7 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		    // If we don't have a document context yet, there's no point trying to send operations to it.
 		    if (context) {
 			context.submitOp(
-			    typeof(op) === "array" ? op : [op],
+			    op instanceof Array ? op : [op],
 			    noop
 			);
 			setVersion(null, doc.version);
