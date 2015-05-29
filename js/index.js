@@ -25,8 +25,7 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	store = storeFactory(collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
 	queryString = queryStringFactory(
 	    standardButtons,
-	    collection,
-	    backend.debug
+	    collection
 	),
 	menuState = menuStateFactory(
 	    backend.onUp,
@@ -40,6 +39,14 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    store.onVersionChanged,
 	    store.getVersion
 	);
+
+    queryString.param(
+	"debug",
+	backend.setDebug,
+	function() {
+	    return backend.isDebugging() ? true : null;
+	}
+    );
 
     return {
 	backend: backend,

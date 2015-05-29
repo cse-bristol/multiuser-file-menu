@@ -188,12 +188,18 @@ module.exports = function(url) {
 		ensureConnected();
 	    },
 
-	    debug: function() {
-		debug = true;
-		if (connection) {
-		    connection.disconnect();
+	    isDebugging: function() {
+		return debug;
+	    },
+
+	    setDebug: function(value) {
+		if (debug !== !!value) {
+		    debug = !!value;
+		    if (connection) {
+			connection.disconnect();
+		    }
+		    ensureConnected(false);
 		}
-		ensureConnected(false);
 	    }
 	};
     return m;
