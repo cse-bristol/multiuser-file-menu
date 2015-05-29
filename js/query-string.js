@@ -66,7 +66,7 @@ module.exports = function(standardButtons, collection) {
 	    });
 	};
 
-    var toURL = function(name, version) {
+    var toURL = function() {
 	if (reading) {
 	    return;
 	}
@@ -89,13 +89,15 @@ module.exports = function(standardButtons, collection) {
 	    search: null,
 	    query: {},
 	    hash: url.hash
-	};
+	},
+	    name = standardButtons.getTitle(),
+	    version = standardButtons.getVersion();
 
 	if (name) {
 	    newURL.query.name = encodeURIComponent(name);
 
 	    if (isNum(version)) {
-		newURL.v = encodeURIComponent(version);
+		newURL.query.v = encodeURIComponent(version);
 	    }
 	}
 

@@ -28,6 +28,8 @@ var d3 = require("d3"),
 module.exports = function(spec) {
     var title = null,
 	onTitleChange = callbacks(),
+	version,
+	onVersionChanged = callbacks(),
     	onNew = callbacks(),
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
@@ -93,7 +95,8 @@ module.exports = function(spec) {
 	historyButtons = spec.toggle(
 	    "History",
 	    function() {
-		onOpen(title, historySlider.node().value);
+		version = historySlider.node().value;
+		onOpen(title, version);
 	    },
 	    {
 		onlineOffline: online,
@@ -106,13 +109,14 @@ module.exports = function(spec) {
 		embeddedStandalone: standalone
 	    },
 	    function() {
-		onOpen(title, null);
+		version = null;
+		onOpen(title, version);
 	    },
 	    {
 		onlineOffline: online,
 		readWriteSync: {
-		    untitle: false,
-		    read: true, // TODO: not for 'new' documents.
+		    untitled: false,
+		    read: true,
 		    write: false,
 		    sync: false
 		},			
@@ -292,25 +296,40 @@ module.exports = function(spec) {
 
 	onAutoSaveChange: onAutoSaveChange.add,
 
-	setMaxVersion: function(val) {
-	    if (isNum(val)) {
-		
+	setVersion: function(v, maxV) {
+	    if (isNum(maxV)) {
 		if (!isNum(historySlider.attr("max"))) {
-		    m.setVersion(val);
+		    m.setVersion(maxV);
 		}
 		
-		historySlider.attr("max", val);
-		historyNumber.attr("max", val);
+		historySlider.attr("max", maxV);
+		historyNumber.attr("max", maxV);
+
+		if (historySlider.node().value > maxV) {
+		    historySlider.node().value = maxV;
+		    historyNumber.node().value = maxV;
+		}
+	    }
+	    
+	    if (v !== version) {
+		if (isNum(v)) {
+		    version = v;
+		    historySlider.node().value = v;
+		    historyNumber.node().value = v;
+		    historyNumber.classed("erroneous-version", false);		
+		} else {
+		    version = null;
+		}
+
+		onVersionChanged();
 	    }
 	},
 
-	setVersion: function(val) {
-	    if (isNum(val)) {
-		historySlider.node().value = val;
-		historyNumber.node().value = val;
-		historyNumber.classed("erroneous-version", false);		
-	    }
+	getVersion: function() {
+	    return version;
 	},
+
+	onVersionChanged: onVersionChanged.add,
 
 	erroneousVersion: function() {
 	    historyNumber.classed("erroneous-version", true);

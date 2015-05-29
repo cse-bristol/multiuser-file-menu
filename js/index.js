@@ -36,8 +36,8 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    store.autoSave,
 	    standardButtons.onTitleChange,
 	    standardButtons.getTitle,
-	    store.onVersionChanged,
-	    store.getVersion
+	    standardButtons.onVersionChanged,
+	    standardButtons.getVersion
 	);
 
     queryString.param(

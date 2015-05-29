@@ -23,11 +23,9 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	 docVersion will be set to the version when we load a historical document. If we are in a current 'live' document (whether autosave or not), it should be set to null. 
 	 */
 	docVersion = null,
-	onVersionChanged = callbacks(),
 	setVersion = function(v, latestV) {
 	    docVersion = v;
-	    documentControl.setMaxVersion(latestV);
-	    onVersionChanged(v);
+	    documentControl.setVersion(v, latestV);
 	},
 	
 	autoSave = false,
@@ -167,8 +165,6 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 
     documentControl.onAutoSaveChange(setAutoSave);
 
-    onVersionChanged.add(documentControl.setVersion);
-    
     return {
 	writeOp: function(op) {
 	    if (autoSave) {
@@ -212,8 +208,6 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 	getVersion: function() {
 	    return docVersion;
 	},
-
-	onVersionChanged: onVersionChanged.add,
 
 	onAutoSaveChanged: onAutoSaveChanged.add,
 
