@@ -33,11 +33,24 @@ module.exports = function(standardButtons, collection) {
 	/*
 	 Add an entry to the browser's back button on any navigation action.
 
-	 Will not add history if we just loaded the page from the URL bar, by clicking a link in another web page, or by pressing the back button.
+	 If we're inside an iframe, we don't make any history changes. Instead, message the parent window.
 	 */
-	addHistory = function(newUrl) {
-	    window.history.pushState(null, "", URL.format(newUrl));
-	    url = newUrl;
+	addHistory = function(newURL) {
+	    var formattedURL = URL.format(newURL);
+	    
+	    if (window === window.parent) {
+		window.history.pushState(null, "", formattedURL);
+	    } else {
+		window.parent.postMessage(
+		    {
+			type: "iframe-state-change",
+			url: formattedURL
+		    },
+		    "*"
+		);
+	    }
+	    
+	    url = newURL;
 	},
 	
 	fromURL = function() {

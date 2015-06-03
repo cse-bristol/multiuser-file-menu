@@ -114,7 +114,37 @@ menu.buildMenu(
 		    standalone: true
 		}
 	    }
+	),
+
+	menu.spec.button(
+	    /*
+	     Makes an arbitrary change to the iframe's query string, allowing us to test it's messaging and history stuff.
+	     */
+	    "Push history",
+	    function() {
+		menu.queryString.param(
+		    "random",
+		    function(val) {
+			console.log("random", val);
+		    },
+		    function() {
+			return Math.random();
+		    }
+		);
+
+		menu.queryString.toURL();
+	    },
+	    {
+		embeddedStandalone: {
+		    embedded: true,
+		    standalone: true
+		}
+	    }
 	)
     ]);
 
 menu.queryString.fromURL();
+
+window.addEventListener("message", function(event) {
+    console.log("iframe message", event.data, event.source.frameElement);
+});
