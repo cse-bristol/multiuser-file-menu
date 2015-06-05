@@ -43,6 +43,7 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 		    d.onlineOffline[menuState.online() ? "online" : "offline"]
 			&& d.readWriteSync[menuState.readWriteSync()]
 			&& d.embeddedStandalone[menuState.embedded() ? "embedded" : "standalone"]
+			&& d.extraDisplayCondition()
 		    
 		) ? "inline-block" : "none";
 	    });
@@ -74,6 +75,7 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 			    if (spec.confirm) {
 				confirm(el);
 			    }
+			    updateButtons();
 			};
 			
 			lastSearch = search(
@@ -88,6 +90,7 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 			if (spec.confirm) {
 			    confirm(el);
 			}
+			updateButtons();
 		    }
 		});
 

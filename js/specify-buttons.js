@@ -123,6 +123,34 @@ module.exports = function(defaultCollection) {
 	    } else {
 		options.hooks = toggleF;
 	    }
+	},
+
+	addToggleDiscriminator = function(discriminatorF, disabledOptions, enabledOptions) {
+	    if (typeof(discriminatorF) !== 'function') {
+		throw new Error("discriminatorF must be a function which returns true or false, was: " + discriminatorF);
+	    }
+	    
+	    if (disabledOptions.extraDisplayCondition) {
+		var disabledWrapped = disabledOptions.extraDisplayCondition;
+		disabledOptions.extraDisplayCondition = function() {
+		    return disabledWrapped() && !discriminatorF();
+		};
+		    
+	    } else {
+		disabledOptions.extraDisplayCondition = function() {
+		    return !discriminatorF();
+		};
+	    }
+
+	    if (enabledOptions.extraDisplayCondition) {
+		var enabledWrapped = enabledOptions.extraDisplayCondition;
+		enabledOptions.extraDisplayCondition = function() {
+		    return enabledWrapped() && discriminatorF();
+		};
+	    } else {
+		enabledOptions.extraDisplayCondition = discriminatorF;
+	    }
+	    
 	};
     
     var m =  {
@@ -133,7 +161,9 @@ module.exports = function(defaultCollection) {
 
 	 f is required, and should be a function. If search is specified, then f will be called once a search result is clicked and will get the text of the search result as an argument. Otherwise, it will be called with no arguments as soon as the button is clicked.
 
-	 options is reqyured, and may contain the following optional properties, plus those listed in the checkStates function above:
+	 options is required, and may contain the following optional properties, plus those listed in the checkStates function above:
+
+	 options.extraDisplayCondition is options and, if present, must return true in order for the button to be displayed.
 
 	 options.search is optional, and should be created using the search() function above. If it is present, then the button will pop up a search box when it is clicked.
 
@@ -144,15 +174,23 @@ module.exports = function(defaultCollection) {
 	 options.confirm is option, and should be either true of false. It causes a tick to appear and then fade whenever the button is clicked. It will default to 'true'.
 	 */
 	button: function(text, f, options) {
-	    if (!typeof(text) === 'string') {
+	    if (typeof(text) !== 'string') {
 		throw new Error("Text should be a string, was: " + text);
 	    }
 
-	    if (!typeof(f) === 'function') {
+	    if (typeof(f) !== 'function') {
 		throw new Error('f should be a function, was: ' + f);
 	    }
 
 	    checkStates(options);
+
+	    if (options.extraDisplayCondition === undefined) {
+		options.extraDisplayCondition = function() {
+		    return true;
+		};
+	    } else if (typeof(options.extraDisplayCondition) !== 'function') {
+		throw new Error("If extraDisplayCondition is specified, it must be a function which returns true or false, was " + options.extraDisplayCondition);
+	    }
 
 	    if (options.search) {
 		checkSearch(options.search);
@@ -187,6 +225,7 @@ module.exports = function(defaultCollection) {
 		onlineOffline: options.onlineOffline,
 		readWriteSync: options.readWriteSync,
 		embeddedStandalone: options.embeddedStandalone,
+		extraDisplayCondition: options.extraDisplayCondition,
 		search: options.search,
 		hooks: options.hooks,
 		element: options.element,
@@ -197,12 +236,16 @@ module.exports = function(defaultCollection) {
 	/*
 	 Returns two buttons with the same name which work together as a toggle.
 	 */
-	toggle: function(text, enableF, disabledOptions, disableF, enabledOptions) {
+	toggle: function(text, discriminatorF, enableF, disabledOptions, disableF, enabledOptions) {
 	    wrapHooks(disabledOptions, disabledToggle);
 	    wrapHooks(enabledOptions, enabledToggle);
 
 	    disabledOptions.confirm = false;
 	    enabledOptions.confirm = false;
+
+	    if (discriminatorF) {
+		addToggleDiscriminator(discriminatorF, disabledOptions, enabledOptions);
+	    }
 	    
 	    return [
 		m.button(

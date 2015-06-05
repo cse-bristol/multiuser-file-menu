@@ -21,6 +21,7 @@ var d3 = require("d3"),
     identity = function(o) {
 	return o;
     },
+    toggle = false,
     menu = require("./js/index.js")(
 	coll,
 	identity,
@@ -141,7 +142,22 @@ menu.buildMenu(
 		}
 	    }
 	)
-    ]);
+    ].concat(
+	menu.spec.toggle(
+	    "Toggle",
+	    function() {
+		return toggle;
+	    },
+	    function() {
+		toggle = true;
+	    },
+	    {},
+	    function() {
+		toggle = false;
+	    },
+	    {}
+	)
+    ));
 
 menu.queryString.fromURL();
 

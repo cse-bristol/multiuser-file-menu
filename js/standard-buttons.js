@@ -94,6 +94,10 @@ module.exports = function(spec) {
 
 	historyButtons = spec.toggle(
 	    "History",
+	    /*
+	     We don't need a discriminator function here: we know which button to display based on read/write status instead.
+	     */
+	    null,
 	    function() {
 		version = historySlider.node().value;
 		onOpen(title, version);
@@ -160,6 +164,10 @@ module.exports = function(spec) {
 
 	autosaveButtons = spec.toggle(
 	    "Auto",
+	    /*
+	    No discriminator function needed here because we already know whether to toggle based on sync status.
+	    */
+	    null,
 	    function() {
 		/*
 		 Sync the document, then listen to further changes.
