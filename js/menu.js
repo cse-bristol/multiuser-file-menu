@@ -109,4 +109,8 @@ module.exports = function(container, buttonSpec, getTitle, searchFunction, menuS
 
     menuState.onChange(updateButtons);
     updateButtons();
+
+    return {
+	updateButtons: updateButtons
+    };
 };

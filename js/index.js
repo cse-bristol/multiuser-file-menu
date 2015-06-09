@@ -38,7 +38,8 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    standardButtons.getTitle,
 	    standardButtons.onVersionChanged,
 	    standardButtons.getVersion
-	);
+	),
+	menu;
 
     queryString.param(
 	"debug",
@@ -55,13 +56,16 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	standard: standardButtons,
 	spec: buttonSpec,
 	buildMenu: function(container, extraButtons) {
-	    menuFactory(
+	    menu = menuFactory(
 		container,
 		standardButtons.buttonSpec().concat(extraButtons),
 		standardButtons.getTitle,
 		backend.search,
 		menuState
 	    );
+	},
+	menu: function() {
+	    return menu;
 	}
     };
 };
