@@ -128,7 +128,6 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 			
 		    } else {
 			var model = freshModel();
-			saveDoc(model);
 			setModel(
 			    model,
 			    null,
