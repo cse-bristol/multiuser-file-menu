@@ -13,25 +13,16 @@ var _ = require("lodash"),
     connected = "connected",
     connecting = "connecting",
     disconnected = "disconnected",
-    stopped = "stopped",
-
-    /*
-     When the commands counter is 0, everything that was trying to use the backend has stopped, so we are allowed to discard our connection.
-     */
-    commandsCounter = 0;
+    stopped = "stopped";
 
 /*
  Connects to a sharejs server.
 
  Exposes some functions about it.
  */
-module.exports = function(url) {
-    var ensureConnected = function(dontIncrement) {
-	if (!dontIncrement) {
-	    commandsCounter += 1;
-	}
-	
-	if (isDown()) {
+module.exports = function(maintainConnection, url) {
+    var ensureConnected = function() {
+	if (maintainConnection && isDown()) {
 	    connection = new sharejs.Connection(
 		new BCSocket(
 		    url,
@@ -72,16 +63,6 @@ module.exports = function(url) {
 	}
     },
 
-	maybeDiscardConnection = function() {
-	    if (commandsCounter > 0) {
-		commandsCounter -= 1;
-	    }
-	    
-	    if (commandsCounter === 0 && !isDown()) {
-		connection.disconnect();
-	    }
-	},
-
 	connection,
 	onUp = callbacks(),
 	onDown = callbacks(),
@@ -114,6 +95,9 @@ module.exports = function(url) {
 		);
 	    },
 
+	    /*
+	     Gets a document.
+	     */
 	    load: function(coll, name, callback) {
 		ensureConnected();
 		var doc = connection.get(coll, name.toLowerCase());
@@ -122,8 +106,25 @@ module.exports = function(url) {
 		}
 		doc.whenReady(function() {
 		    callback(doc);
-		    maybeDiscardConnection();
 		});
+	    },
+
+	    /*
+	     Gets a document snapshot without loading the whole document.
+
+	     Used when we are in offline mode.
+	     */
+	    loadSnapshot: function(coll, name, callback, errback) {
+		d3.json(
+		    [url, "current", coll, name].join("/"),
+		    function(error, json) {
+			if (error) {
+			    errback(error.response);
+			} else if (json.data) {
+			    callback(json.data);
+			}
+		    }
+		);
 	    },
 
 	    /*
@@ -149,21 +150,6 @@ module.exports = function(url) {
 		);
 	    },
 
-	    /*
-	     When the server is not connected, it's still OK to get a document if we know that it doesn't already exist.
-
-	     To ensure this, the name passed here should be a GUID.
-	     */
-	    loadOffline: function(coll, name) {
-		ensureConnected();
-		var doc = connection.get(coll, name.toLowerCase());
-		if (!doc.subscribed) {
-		    doc.subscribe();
-		}
-		maybeDiscardConnection();
-		return doc;
-	    },
-
 	    deleteDoc: function(coll, name) {
 		ensureConnected();
 		var toDelete = connection.get(coll, name.toLowerCase());
@@ -173,20 +159,12 @@ module.exports = function(url) {
 		toDelete.whenReady(function() {
 		    toDelete.del();
 		    toDelete.destroy();
-		    maybeDiscardConnection();
 		});
 	    },
 
 	    onUp: onUp.add,
 	    onDown: onDown.add,
 	    isUp: isUp,
-
-	    /*
-	     Since this ensureConnected is not paired with a maybeDiscardConnection, it will keep the connection open forever.
-	     */
-	    stayConnected: function() {
-		ensureConnected();
-	    },
 
 	    isDebugging: function() {
 		return debug;
@@ -198,9 +176,14 @@ module.exports = function(url) {
 		    if (connection) {
 			connection.disconnect();
 		    }
-		    ensureConnected(false);
+		    ensureConnected();
 		}
 	    }
 	};
+
+    if (maintainConnection) {
+	ensureConnected();
+    }
+
     return m;
 };

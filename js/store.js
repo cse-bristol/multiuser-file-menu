@@ -13,7 +13,7 @@ var _ = require("lodash"),
 
  Translates things the user does with the document control into actions on the backend.
  */
-module.exports = function(collection, backend, documentControl, serialize, deserialize, getModel, setModelToObject, freshModel) {
+module.exports = function(maintainConnection, collection, backend, documentControl, serialize, deserialize, getModel, setModelToObject, freshModel) {
     var doc,
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
@@ -108,6 +108,23 @@ module.exports = function(collection, backend, documentControl, serialize, deser
 		function(error) {
 		    setVersion(version, null);
 		    documentControl.erroneousVersion();
+		}
+	    );
+
+	} else if (!maintainConnection) {
+	    backend.loadSnapshot(
+		collection,
+		name,
+		function(snapshot) {
+		    setDoc(null);
+		    setModel(
+			deserialize(snapshot),
+			null,
+			null
+		    );
+		},
+		function(error) {
+		    throw new Error(error);
 		}
 	    );
 	    

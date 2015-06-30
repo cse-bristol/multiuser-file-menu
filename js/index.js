@@ -14,24 +14,36 @@ var iframeAntiScrolljack = require("iframe-anti-scrolljack"),
 	var a = document.createElement("a");
 	a.href = "/";
 	return a.href + "channel";
-    }();
+    }(),
+
+    isEmbedded = function() {
+	try {
+	    return window.self !== window.top;
+	} catch (e) {
+	    return true;
+	}
+    };
 
 module.exports = function(collection, serialize, deserialize, getModel, setModel, freshModel, url) {
-    iframeAntiScrolljack();
+    var embedded = isEmbedded();
+
+    if (embedded) {
+	iframeAntiScrolljack();
+    }
     
-    var backend = backendFactory(url ? url : defaultUrl),
+    var backend = backendFactory(!embedded, url ? url : defaultUrl),
 	buttonSpec = buttonSpecFactory(collection),
 	standardButtons = standardButtonFactory(buttonSpec),
-	store = storeFactory(collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
+	store = storeFactory(!embedded, collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
 	queryString = queryStringFactory(
 	    standardButtons,
 	    collection
 	),
 	menuState = menuStateFactory(
+	    embedded,
 	    backend.onUp,
 	    backend.onDown,
 	    backend.isUp,
-	    backend.stayConnected,
 	    store.onAutoSaveChanged,
 	    store.autoSave,
 	    standardButtons.onTitleChange,

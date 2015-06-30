@@ -7,7 +7,8 @@ var helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler;
 
 module.exports = function(
-    onUp, onDown, isUp, stayConnected,
+    embedded,
+    onUp, onDown, isUp,
     onAutoSaveChanged, autoSave,
     onTitleChanged, getTitle,
     onVersionChanged, getVersion
@@ -26,11 +27,7 @@ module.exports = function(
 	},
 
 	embedded: function() {
-	    try {
-		return window.self !== window.top;
-	    } catch (e) {
-		return true;
-	    }
+	    return embedded;
 	},
 
 	/*
@@ -70,10 +67,6 @@ module.exports = function(
 
 	onChange: onChange.add
     };
-
-    if (!m.embedded()) {
-	stayConnected();
-    }
 
     return m;
 };
