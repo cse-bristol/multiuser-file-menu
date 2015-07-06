@@ -76,6 +76,17 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 		menuState
 	    );
 	},
+
+	buildCustomMenu: function(container, buttons) {
+	    menu = menuFactory(
+		container,
+		buttons,
+		standardButtons.getTitle,
+		backend.search,
+		menuState
+	    );
+	},
+	
 	menu: function() {
 	    return menu;
 	}
