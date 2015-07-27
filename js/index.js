@@ -4,7 +4,8 @@
 
 var iframeAntiScrolljack = require("iframe-anti-scrolljack"),
     backendFactory = require("./backend.js"),
-    menuFactory = require("./menu.js"),
+    menuContainerFactory = require("./menu.js"),
+    menuContentsFactory = require("./menu-contents.js"),
     standardButtonFactory = require("./standard-buttons.js"),
     storeFactory = require("./store.js"),
     queryStringFactory = require("./query-string.js"),
@@ -24,7 +25,7 @@ var iframeAntiScrolljack = require("iframe-anti-scrolljack"),
 	}
     };
 
-module.exports = function(collection, serialize, deserialize, getModel, setModel, freshModel, url) {
+module.exports = function(collection, serialize, deserialize, getModel, setModel, freshModel, url, helpURL) {
     var embedded = isEmbedded();
 
     if (embedded) {
@@ -67,19 +68,13 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	queryString: queryString,
 	standard: standardButtons,
 	spec: buttonSpec,
-	buildMenu: function(container, extraButtons) {
-	    menu = menuFactory(
-		container,
-		standardButtons.buttonSpec().concat(extraButtons),
-		standardButtons.getTitle,
-		backend.search,
-		menuState
-	    );
-	},
+	buildMenu: function(container, buttons, excludeStandardButtons) {
+	    var menuContainer = menuContainerFactory(container, helpURL);
 
-	buildCustomMenu: function(container, buttons) {
-	    menu = menuFactory(
-		container,
+	    buttons = excludeStandardButtons ? buttons : standardButtons.buttonSpec().concat(buttons);
+	    
+	    menu = menuContentsFactory(
+		menuContainer.contents,
 		buttons,
 		standardButtons.getTitle,
 		backend.search,

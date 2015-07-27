@@ -262,24 +262,23 @@ module.exports = function(spec) {
 		    standalone: false
 		}
 	    }
-	),	
-	
+	),
 
 	standardButtons = [
 	    offlineIndicator,
 	    popOutButton,
 	    newButton,
 	    openButton,
-	    deleteButton,
-	    saveAsButton,	    
+	    saveButton,
+	    saveAsButton,
+
+	    autosaveButtons[0],
+	    autosaveButtons[1],	    
 
 	    historyButtons[0],
 	    historyButtons[1],
 
-	    autosaveButtons[0],
-	    autosaveButtons[1],
-
-	    saveButton
+	    deleteButton
 	];
 
     var m =  {
