@@ -57,6 +57,7 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 		    
 		    process = spec.f(
 			spec.state === "active",
+			getTitle(),
 			d3.select(this)
 		    );
 

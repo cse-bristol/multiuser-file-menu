@@ -18,9 +18,9 @@ var callbacks = require("./helpers.js").callbackHandler,
  options.currentPage will have the class .search-result-current-page added to it.
  */
 module.exports = function(searchFunction, collection, resultFunction, options) {
-    return function(wasActive, buttonElement) {
+    return function(wasActive, currentTitle, buttonElement) {
 	if (wasActive) {
-	    return;
+	    return null;
 	}
 	
 	var wrapper = buttonElement
@@ -168,7 +168,7 @@ module.exports = function(searchFunction, collection, resultFunction, options) {
 				hideResults(5);
 			    })
 			    .classed("search-result-current-page", function(d, i) {
-				return d === options.currentPage;
+				return d === currentTitle;
 			    })
 			    .classed("search-result-fabricated", function(d, i) {
 				return addedVal && d === val;
