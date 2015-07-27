@@ -36,9 +36,6 @@ module.exports = function(spec) {
 	onDelete = callbacks(),
 	onAutoSaveChange = callbacks(),
 
-	historySlider,
-	historyNumber,
-
 	setTitle = function(newTitle) {
 	    title = newTitle;
 	    onTitleChange(title);
@@ -65,7 +62,6 @@ module.exports = function(spec) {
 		    offline: true
 		},
 		embeddedStandalone: standalone,
-		confirm: false,
 		hooks: function(el) {
 		    el.attr("id", "offline-indicator")
 			.classed("active", true)
@@ -92,28 +88,13 @@ module.exports = function(spec) {
 	    }
 	),
 
-	historyButtons = spec.toggle(
+	historyButton = spec.toggle(
 	    "History",
-	    /*
-	     We don't need a discriminator function here: we know which button to display based on read/write status instead.
-	     */
-	    null,
-	    function() {
-		version = historySlider.node().value;
-		onOpen(title, version);
+	    function(menuState) {
+		return menuState.readOnly();
 	    },
-	    {
-		onlineOffline: online,
-		readWriteSync: {
-		    untitled: false,
-		    read: false,
-		    write: true,
-		    sync: true
-		},		
-		embeddedStandalone: standalone
-	    },
-	    function() {
-		version = null;
+	    function(wasActive) {
+		version = wasActive ? null : 0;
 		onOpen(title, version);
 	    },
 	    {
@@ -121,59 +102,26 @@ module.exports = function(spec) {
 		readWriteSync: {
 		    untitled: false,
 		    read: true,
-		    write: false,
-		    sync: false
-		},			
-		embeddedStandalone: standalone,
-		hooks: function(el) {
-		    var delayedOpen = _.debounce(
-			function(val) {
-			    onOpen(title, val);
-			},
-			200
-		    );
-		    
-		    historySlider = el.append("input")
-			.attr("id", "history-slider")
-			.attr("type", "range")
-			.attr("min", 0)
-			.on("input", function(d, i) {
-			    historyNumber.node().value = this.value;			    
-			    delayedOpen(this.value);
-			})
-			.on("click", function(d, i) {
-			    // Stop the history button from toggling.
-			    d3.event.stopPropagation();
-			});
-
-		    historyNumber = el.append("input")
-			.attr("type", "number")
-			.attr("id", "history-number")			    
-			.attr("min", 0)
-			.on("input", function(d, i) {
-			    historySlider.node().value = this.value;
-			    delayedOpen(this.value);
-			})
-			.on("click", function(d, i) {
-			    // Stop the history button from toggling.
-			    d3.event.stopPropagation();
-			});
-		}
+		    write: true,
+		    sync: true
+		},		
+		embeddedStandalone: standalone
 	    }
 	),
 
-	autosaveButtons = spec.toggle(
+	autosaveButton = spec.toggle(
 	    "Auto",
-	    /*
-	    No discriminator function needed here because we already know whether to toggle based on sync status.
-	    */
-	    null,
-	    function() {
-		/*
-		 Sync the document, then listen to further changes.
-		 */
-		onSaveAs(title);
-		onAutoSaveChange(true);
+	    function(menuState) {
+		return menuState.sync();
+	    },
+	    function(wasActive) {
+		if (!wasActive) {
+		    /*
+		     Sync the document before listening to changes.
+		     */
+		    onSaveAs(title);
+		}
+		onAutoSaveChange(!wasActive);
 	    },
 	    {
 		onlineOffline: online,
@@ -181,19 +129,6 @@ module.exports = function(spec) {
 		    untitled: false,
 		    read: false,
 		    write: true,
-		    sync: false
-		}
-	    },
-
-	    function() {
-		onAutoSaveChange(false);
-	    },
-	    {
-		onlineOffline: online,
-		readWriteSync: {
-		    untitled: false,
-		    read: false,
-		    write: false,
 		    sync: true
 		}
 	    }
@@ -271,13 +206,8 @@ module.exports = function(spec) {
 	    openButton,
 	    saveButton,
 	    saveAsButton,
-
-	    autosaveButtons[0],
-	    autosaveButtons[1],	    
-
-	    historyButtons[0],
-	    historyButtons[1],
-
+	    autosaveButton,
+	    historyButton,
 	    deleteButton
 	];
 
@@ -303,27 +233,20 @@ module.exports = function(spec) {
 
 	onAutoSaveChange: onAutoSaveChange.add,
 
+	/*
+	 ToDo
+
+	 We need a way to provide a list of dates for historical versions.
+	 */
 	setVersion: function(v, maxV) {
 	    if (isNum(maxV)) {
-		if (!isNum(historySlider.attr("max"))) {
-		    m.setVersion(maxV);
-		}
-		
-		historySlider.attr("max", maxV);
-		historyNumber.attr("max", maxV);
-
-		if (historySlider.node().value > maxV) {
-		    historySlider.node().value = maxV;
-		    historyNumber.node().value = maxV;
-		}
+		// ToDo
 	    }
 	    
 	    if (v !== version) {
 		if (isNum(v)) {
 		    version = v;
-		    historySlider.node().value = v;
-		    historyNumber.node().value = v;
-		    historyNumber.classed("erroneous-version", false);		
+		    // ToDo update history controls
 		} else {
 		    version = null;
 		}
@@ -336,11 +259,12 @@ module.exports = function(spec) {
 	    return version;
 	},
 
-	onVersionChanged: onVersionChanged.add,
-
 	erroneousVersion: function() {
-	    historyNumber.classed("erroneous-version", true);
-	}
+	    // ToDo do we still want this?
+	    // In what cases could it trigger?
+	},
+
+	onVersionChanged: onVersionChanged.add
     };
     return m;
 };

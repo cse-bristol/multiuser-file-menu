@@ -89,8 +89,7 @@ menu.buildMenu(
 		    menu.standard.onTitleChange(function(newTitle) {
 			button.text(newTitle);
 		    });
-		},
-		element: "a"
+		}
 	    }
 	),
 
@@ -141,23 +140,19 @@ menu.buildMenu(
 		    standalone: true
 		}
 	    }
-	)
-    ].concat(
+	),
+
 	menu.spec.toggle(
 	    "Toggle",
 	    function() {
 		return toggle;
 	    },
-	    function() {
-		toggle = true;
-	    },
-	    {},
-	    function() {
-		toggle = false;
+	    function(wasActive) {
+		toggle = !wasActive;
 	    },
 	    {}
-	)
-    ));
+	)	
+    ]);
 
 menu.queryString.fromURL();
 

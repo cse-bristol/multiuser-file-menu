@@ -20,11 +20,9 @@ module.exports = function(container, helpURL) {
 		d3.select(this)
 		    .datum(!d);
 
-		file.classed("enabled", !d);
+		file.classed("active", !d);
 		fileContents
-		    .classed("enabled", !d);
-		    // .transition()
-		    // .style("transform", "scale(1," + (d ? 0 : 1) + ")");
+		    .classed("active", !d);
 	    }),
 
 	help = menu.append("a")
@@ -34,6 +32,8 @@ module.exports = function(container, helpURL) {
 	    .attr("href", helpURL),
 
 	fileContents = menu.append("div")
+	    .attr("id", "file-menu-contents-wrapper")
+	    .append("div")
 	    .attr("id", "file-menu-contents");
 
     return {

@@ -1,8 +1,8 @@
 #menu-bar {
-    cursor: pointer;
     color: white;
     font-size: large;
     font-family: monospace;
+    cursor: default;
 
     position: absolute;
     overflow: hidden;
@@ -48,30 +48,38 @@
     color: grey;
 }
 
-#file-menu-contents .menu-item.active {
+#file-menu-contents .menu-item.ready {
     color: white;
+    cursor: pointer;
 }
 
-#file-menu.enabled {
+#file-menu-contents .menu-item.active {
+    color: green;
+    cursor: pointer;
+}
+
+#file-menu.active {
     background-color: black;
     color: green;
+}
+
+/*
+Makes sure that the contents of the file-menu do not appear to scroll in front of the 'File' button whilst animating.
+
+Needed since z-index does not appear to work with css transitions.
+ */
+#file-menu-contents-wrapper {
+    overflow: hidden;
 }
 
 #file-menu-contents {
     top:-50em;
     transition: top 0.3s;
-    position: absolute;
-    z-index: -1;
+    position: relative;
 }
 
-#file-menu-contents.enabled {
-    top: 2.1em;
-}
-
-.confirmation {
-    color: green;
-    position: absolute;
-    right: 2px;
+#file-menu-contents.active {
+    top: 0;
 }
 
 #search-control {
@@ -95,18 +103,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-#history-slider {
-    width: 98%;
-}
-
-#history-number {
-    width:95%;
-}
-
-.erroneous-version {
-    color:red;
 }
 
 #offline-indicator {
