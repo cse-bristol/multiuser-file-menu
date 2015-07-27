@@ -50,6 +50,7 @@ menu.buildMenu(
 	     This button searches a collection and alerts when a user clicks a result.
 	     */
 	    "Example",
+	    null,
 	    function(result) {
 		alert("Searched the test collection and found " + result);
 	    },
@@ -77,6 +78,7 @@ menu.buildMenu(
 	     It is an anchor tag instead of a div.
 	     */
 	    "Hook",
+	    null,
 	    function() {
 		// Noop
 	    },
@@ -87,7 +89,7 @@ menu.buildMenu(
 		},
 		hooks: function(button) {
 		    menu.standard.onTitleChange(function(newTitle) {
-			button.text(newTitle);
+			button.text("Title: " + newTitle);
 		    });
 		}
 	    }
@@ -98,6 +100,7 @@ menu.buildMenu(
 	     Embeds an iframe in the page.
 	     */
 	    "Embed iframe",
+	    null,
 	    function() {
 		body.append("iframe")
 		    .attr("src", document.location)
@@ -121,6 +124,7 @@ menu.buildMenu(
 	     Makes an arbitrary change to the iframe's query string, allowing us to test it's messaging and history stuff.
 	     */
 	    "Push history",
+	    null,
 	    function() {
 		menu.queryString.param(
 		    "random",
@@ -142,7 +146,7 @@ menu.buildMenu(
 	    }
 	),
 
-	menu.spec.toggle(
+	menu.spec.button(
 	    "Toggle",
 	    function() {
 		return toggle;

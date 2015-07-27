@@ -34,7 +34,12 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
     
     var backend = backendFactory(!embedded, url ? url : defaultUrl),
 	buttonSpec = buttonSpecFactory(collection),
-	standardButtons = standardButtonFactory(buttonSpec),
+	standardButtons = standardButtonFactory(
+	    buttonSpec,
+	    backend.search,
+	    collection
+	),
+	
 	store = storeFactory(!embedded, collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
 	queryString = queryStringFactory(
 	    standardButtons,
@@ -74,10 +79,9 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    buttons = excludeStandardButtons ? buttons : standardButtons.buttonSpec().concat(buttons);
 	    
 	    menu = menuContentsFactory(
-		menuContainer.contents,
+		menuContainer,
 		buttons,
 		standardButtons.getTitle,
-		backend.search,
 		menuState
 	    );
 	},

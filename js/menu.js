@@ -8,7 +8,9 @@ var d3 = require("d3");
  Provides UI buttons based on buttonSpec, which should be an array containing objects generated using specify-buttons.js.
  */
 module.exports = function(container, helpURL) {
-    var menu = container.append("div")
+    var onHide,
+
+	menu = container.append("div")
 	    .attr("id", "menu-bar"),
 
 	file = menu.append("div")
@@ -19,6 +21,10 @@ module.exports = function(container, helpURL) {
 	    .on("click", function(d, i) {
 		d3.select(this)
 		    .datum(!d);
+
+		if (!d && onHide) {
+		    onHide();
+		}
 
 		file.classed("active", !d);
 		fileContents
@@ -37,6 +43,9 @@ module.exports = function(container, helpURL) {
 	    .attr("id", "file-menu-contents");
 
     return {
-	contents: fileContents
+	contentElement: fileContents,
+	onHide: function(f) {
+	    onHide = f;
+	}
     };
 };

@@ -8,6 +8,8 @@ var d3 = require("d3"),
     isNum = helpers.isNum,
     callbacks = helpers.callbackHandler,
 
+    searchFactory = require("./search.js"),
+
     online = {
 	online: true,
 	offline: false
@@ -25,7 +27,7 @@ var d3 = require("d3"),
 
  Keeps track of the document title, and whether or not it is a temporary title.
  */
-module.exports = function(spec) {
+module.exports = function(spec, backendSearch, collection) {
     var title = null,
 	onTitleChange = callbacks(),
 	version,
@@ -35,6 +37,10 @@ module.exports = function(spec) {
 	onSaveAs = callbacks(),
 	onDelete = callbacks(),
 	onAutoSaveChange = callbacks(),
+
+	searchProcess = function(resultFunction, options) {
+	    return searchFactory(backendSearch, collection, resultFunction, options);
+	},
 
 	setTitle = function(newTitle) {
 	    title = newTitle;
@@ -53,6 +59,7 @@ module.exports = function(spec) {
 
 	offlineIndicator = spec.button(
 	    "Connecting",
+	    null,
 	    function() {
 		// Noop
 	    },
@@ -72,6 +79,7 @@ module.exports = function(spec) {
 
 	newButton = spec.button(
 	    "New",
+	    null,
 	    newDoc,
 	    {
 		embeddedStandalone: standalone
@@ -80,15 +88,17 @@ module.exports = function(spec) {
 
 	openButton = spec.button(
 	    "Open",
-	    open,
+	    function(menuState, ownsCurrentProcess) {
+		return ownsCurrentProcess;
+	    },
+	    searchProcess(open, {}),
 	    {
 		onlineOffline: online,
-		embeddedStandalone: standalone,
-		search: {}
+		embeddedStandalone: standalone
 	    }
 	),
 
-	historyButton = spec.toggle(
+	historyButton = spec.button(
 	    "History",
 	    function(menuState) {
 		return menuState.readOnly();
@@ -109,7 +119,7 @@ module.exports = function(spec) {
 	    }
 	),
 
-	autosaveButton = spec.toggle(
+	autosaveButton = spec.button(
 	    "Auto",
 	    function(menuState) {
 		return menuState.sync();
@@ -136,6 +146,7 @@ module.exports = function(spec) {
 
 	deleteButton = spec.button(
 	    "Delete",
+	    null,
 	    function(result) {
 		if (result === title) {
 		    setTitle(null);
@@ -152,6 +163,7 @@ module.exports = function(spec) {
 
 	saveButton = spec.button(
 	    "Save",
+	    null,
 	    function() {
 		onSaveAs(title);
 	    },
@@ -168,6 +180,7 @@ module.exports = function(spec) {
 	
 	saveAsButton = spec.button(
 	    "Save as",
+	    null,
 	    function(result) {
 		if (title === result) {
 		    return;
@@ -188,6 +201,7 @@ module.exports = function(spec) {
 
 	popOutButton = spec.button(
 	    "Pop Out",
+	    null,
 	    function() {
 		window.open(document.location, "_blank");
 	    },

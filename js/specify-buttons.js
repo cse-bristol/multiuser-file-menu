@@ -84,7 +84,7 @@ module.exports = function(defaultCollection) {
 
 	 options.hooks is optional, and should be a function which takes a d3 selection. The d3 selection will be the button. Hooks can be used to modify the button. If not specified, it will default to a noop function.
 	 */
-	button: function(text, f, options) {
+	button: function(text, isActive, f, options) {
 	    if (typeof(text) !== 'string') {
 		throw new Error("Text should be a string, was: " + text);
 	    }
@@ -115,37 +115,25 @@ module.exports = function(defaultCollection) {
 	    return {
 		text: text,
 		f: f,
-		getState: function(menuState) {
-		    return (
+		getState: function(menuState, ownsCurrentProcess) {
+		    if (
 			options.onlineOffline[menuState.online() ? "online" : "offline"]
 			    && options.readWriteSync[menuState.readWriteSync()]
 			    && options.embeddedStandalone[menuState.embedded() ? "embedded" : "standalone"]
 			    && options.extraDisplayCondition()
-		    ) ? ready : disabled;
+		    ) {
+			if (isActive && isActive(menuState, ownsCurrentProcess)) {
+			    return active;
+			} else {
+			    return ready;
+			}
+			
+		    } else {
+			return disabled;
+		    }
 		},
 		hooks: options.hooks
 	    };
-	},
-
-	/*
-	 This button has a third state which it may be in.
-	 */
-	toggle: function(text, isActive, f, options) {
-	    var b = m.button(text, f, options),
-		wrapped = b.getState;
-
-	    b.getState = function(menuState) {
-		var readyDisabled = wrapped(menuState);
-
-		if (readyDisabled === ready && isActive(menuState)) {
-		    return active;
-		    
-		} else {
-		    return readyDisabled;
-		}
-	    };
-
-	    return b;
 	}
     };
 

@@ -17,180 +17,188 @@ var callbacks = require("./helpers.js").callbackHandler,
 
  options.currentPage will have the class .search-result-current-page added to it.
  */
-module.exports = function(container, searchFunction, onHide, options) {
-    var form = container
-	    .append("form")
-	    .attr("id", "search-control")
-	    .on("submit", function(d, i) {
-		// Don't submit the form.
-		d3.event.preventDefault();
-		d3.event.stopPropagation();
-
-		var target = searchResults.select("." + highlightedResult);
-
-		if (target.size() === 0) {
-		    // If the results aren't showing, execute the search (the user is waiting...)
-		    doSearch();
-		} else {
-		    // If the results are showing, our user has selected a result.
-		    options.f(target.datum());
-		    hideResults(5);
-		}
-
-		return false;
-	    });
-
-    form.onsubmit = function() {
-    	return false;
-    };
-
-    var getSearchValue = function() {
-	return search.node().value.toLowerCase().trim();
-    },
-
-	hideResults = function(delay) {
-	    var maybeTransition = delay ? form.transition().delay(delay) : form;
-	    maybeTransition.remove();
-	    onHide();
-	},
-
-	moveSelection = function(offset) {
-	    var results = searchResults.selectAll("." + searchResult),
-		currentI;
-
-	    if (results.empty()) {
-		return;
-	    }
-
-	    results.each(function(d, i) {
-		if (d3.select(this).classed(highlightedResult)) {
-		    currentI = i;
-		}
-	    });
-
-	    var newI = (currentI + offset);
-
-	    if (newI < 0) {
-		newI += results.size();
-	    }
+module.exports = function(searchFunction, collection, resultFunction, options) {
+    return function(wasActive, buttonElement) {
+	if (wasActive) {
+	    return;
+	}
+	
+	var wrapper = buttonElement
+		.append("div"),
 	    
-	    newI %= results.size();
+	    form = wrapper
+		.attr("id", "search-wrapper")
+		.append("form")
+		.attr("id", "search-control")
+		.on("submit", function(d, i) {
+		    // Don't submit the form.
+		    d3.event.preventDefault();
+		    d3.event.stopPropagation();
 
-	    if (newI !== currentI) {
-		d3.select(
-		    results[0][currentI]
-		).classed(highlightedResult, false);
+		    var target = searchResults.select("." + highlightedResult);
 
-		d3.select(
-		    results[0][newI]
-		).classed(highlightedResult, true);
-	    }
+		    if (target.size() === 0) {
+			// If the results aren't showing, execute the search (the user is waiting...)
+			doSearch();
+		    } else {
+			// If the results are showing, our user has selected a result.
+			resultFunction(target.datum());
+			hideResults(5);
+		    }
+
+		    return false;
+		});
+
+	form.onsubmit = function() {
+    	    return false;
+	};
+
+	var getSearchValue = function() {
+	    return search.node().value.toLowerCase().trim();
 	},
 
-	search = form.append("input")
-	    .attr("type", "text")
-	    .attr("autocomplete", "off")
-	    .attr("id", "search")
-	    .on("input", function(d, i) {
-		// Allow a little time for the user to finish typing.		
-		doSearchSoonish();
-	    })
-	    .on("keydown", function(d, i) {
-		if (d3.event.keyCode === arrowDown) {
-		    moveSelection(1);
-		    
-		} else if (d3.event.keyCode === arrowUp) {
-		    moveSelection(-1);
-		    
-		} else {
+	    hideResults = function(delay) {
+		var maybeTransition = delay ? wrapper.transition().delay(delay) : form;
+		maybeTransition.remove();
+	    },
+
+	    moveSelection = function(offset) {
+		var results = searchResults.selectAll("." + searchResult),
+		    currentI;
+
+		if (results.empty()) {
 		    return;
 		}
 
-		d3.event.preventDefault();
-		d3.event.stopPropagation();
-	    })
-	    .on("blur", function() {
-		hideResults(200);
-	    }),
-
-	// Having a 'submit' input allows you to press enter in the search box to send a search.
-	submit = form.append("input")
-    	    .attr("type", "submit")
-    	    .style("display", "none"),
-
-	searchResults = form.append("ul")
-	    .attr("id", "search-results"),
-
-	doSearch = function() {
-	    var val = getSearchValue();
-
-	    searchFunction(options.collection, val, function(names) {
-		var addedVal = false;
-
-		if (options.excludeTerms.test(val)) {
-		    return;
-		}
-		
-		if (val !== getSearchValue()) {
-		    // The user has changed the text since we issued this search.
-		    return;
-		}
-
-		if (options.includeSearchTerm && names.indexOf(val) < 0) {
-		    // Add the search text to the top of the list.
-		    names = [val].concat(names);
-		    addedVal = true;
-		}
-
-		var results = searchResults.selectAll("li")
-			.data(
-			    names,
-			    function(d, i) {
-				return d;
-			    }
-			);
-
-		results.exit().remove();
-
-		var newResults = results.enter().append("li")
-			.classed(searchResult, true)
-			.text(function(d, i) {
-			    return d;
-			})
-			.on("click", function(d, i) {
-			    options.f(d);
-			    hideResults(5);
-			})
-			.classed("search-result-current-page", function(d, i) {
-			    return d === options.currentPage;
-			})
-			.classed("search-result-fabricated", function(d, i) {
-			    return addedVal && d === val;
-			});
-
-		var noneHighlighted = true;
 		results.each(function(d, i) {
 		    if (d3.select(this).classed(highlightedResult)) {
-			noneHighlighted = false;
+			currentI = i;
 		    }
 		});
 
-		if (noneHighlighted && !results.empty()) {
-		    d3.select(results[0][0]).classed(highlightedResult, true);
+		var newI = (currentI + offset);
+
+		if (newI < 0) {
+		    newI += results.size();
 		}
-	    });
-	},
+		
+		newI %= results.size();
 
-	doSearchSoonish = _.debounce(doSearch, 500);
+		if (newI !== currentI) {
+		    d3.select(
+			results[0][currentI]
+		    ).classed(highlightedResult, false);
 
-    /*
-     Fill the box with some initial values.
-     */
-    doSearch();
-    search.node().focus();
+		    d3.select(
+			results[0][newI]
+		    ).classed(highlightedResult, true);
+		}
+	    },
 
-    return {
-	hide: hideResults
+	    search = form.append("input")
+		.attr("type", "text")
+		.attr("autocomplete", "off")
+		.attr("placeholder", "Find")
+		.attr("id", "search")
+		.on("input", function(d, i) {
+		    // Allow a little time for the user to finish typing.		
+		    doSearchSoonish();
+		})
+		.on("keydown", function(d, i) {
+		    if (d3.event.keyCode === arrowDown) {
+			moveSelection(1);
+			
+		    } else if (d3.event.keyCode === arrowUp) {
+			moveSelection(-1);
+			
+		    } else {
+			return;
+		    }
+
+		    d3.event.preventDefault();
+		    d3.event.stopPropagation();
+		}),
+
+	    // Having a 'submit' input allows you to press enter in the search box to send a search.
+	    submit = form.append("input")
+    		.attr("type", "submit")
+    		.style("display", "none"),
+
+	    searchResults = form.append("div")
+		.attr("id", "search-results"),
+
+	    doSearch = function() {
+		var val = getSearchValue();
+
+		searchFunction(collection, val, function(names) {
+		    var addedVal = false;
+
+		    if (options.excludeTerms && options.excludeTerms.test(val)) {
+			return;
+		    }
+		    
+		    if (val !== getSearchValue()) {
+			// The user has changed the text since we issued this search.
+			return;
+		    }
+
+		    if (options.includeSearchTerm && names.indexOf(val) < 0) {
+			// Add the search text to the top of the list.
+			names = [val].concat(names);
+			addedVal = true;
+		    }
+
+		    var results = searchResults.selectAll("." + searchResult)
+			    .data(
+				names,
+				function(d, i) {
+				    return d;
+				}
+			    );
+
+		    results.exit().remove();
+
+		    var newResults = results.enter().append("div")
+			    .classed(searchResult, true)
+			    .text(function(d, i) {
+				return d;
+			    })
+			    .on("click", function(d, i) {
+				resultFunction(d);
+				hideResults(5);
+			    })
+			    .classed("search-result-current-page", function(d, i) {
+				return d === options.currentPage;
+			    })
+			    .classed("search-result-fabricated", function(d, i) {
+				return addedVal && d === val;
+			    });
+
+		    var noneHighlighted = true;
+		    results.each(function(d, i) {
+			if (d3.select(this).classed(highlightedResult)) {
+			    noneHighlighted = false;
+			}
+		    });
+
+		    if (noneHighlighted && !results.empty()) {
+			d3.select(results[0][0]).classed(highlightedResult, true);
+		    }
+		});
+	    },
+
+	    doSearchSoonish = _.debounce(doSearch, 500);
+
+	/*
+	 Fill the box with some initial values.
+	 */
+	doSearch();
+	search.node().focus();
+
+	return {
+	    exit: hideResults,
+	    button: buttonElement
+	};
     };
 };
 
