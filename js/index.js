@@ -2,7 +2,7 @@
 
 /*global module, require*/
 
-var iframeAntiScrolljack = require("iframe-anti-scrolljack"),
+var iframeNoScroll = require("./iframe-noscroll"),
     backendFactory = require("./backend.js"),
     menuContainerFactory = require("./menu.js"),
     menuContentsFactory = require("./menu-contents.js"),
@@ -29,7 +29,7 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
     var embedded = isEmbedded();
 
     if (embedded) {
-	iframeAntiScrolljack();
+	iframeNoScroll();
     }
     
     var backend = backendFactory(!embedded, url ? url : defaultUrl),
