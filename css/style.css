@@ -43,6 +43,10 @@
     background-color: rosybrown;
 }
 
+#file-menu {
+    cursor: pointer;
+}
+
 #file-menu-contents .menu-item {
     display: block;
     background-color: black;
