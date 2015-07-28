@@ -68,7 +68,10 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
     });
 
     menuState.onChange(updateButtons);
-    menuContainer.onHide(killProcess);
+    menuContainer.onHide(function() {
+	killProcess();
+	updateButtons();
+    });
     updateButtons();
 
     return {
