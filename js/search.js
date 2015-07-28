@@ -58,7 +58,7 @@ module.exports = function(searchFunction, collection, resultFunction, options) {
 	},
 
 	    hideResults = function(delay) {
-		var maybeTransition = delay ? wrapper.transition().delay(delay) : form;
+		var maybeTransition = delay ? wrapper.transition().delay(delay) : wrapper;
 		maybeTransition.remove();
 	    },
 
