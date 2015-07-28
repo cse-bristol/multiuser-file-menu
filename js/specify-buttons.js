@@ -80,9 +80,11 @@ module.exports = function(defaultCollection) {
 
 	 options is required, and may contain the following optional properties, plus those listed in the checkStates function above:
 
-	 options.extraDisplayCondition is options and, if present, must return true in order for the button to be displayed.
+	 options.extraDisplayCondition is a function which must return true in order for the button to be displayed.
 
-	 options.hooks is optional, and should be a function which takes a d3 selection. The d3 selection will be the button. Hooks can be used to modify the button. If not specified, it will default to a noop function.
+	 options.element is a string which represents the type of HTML element to be used for this button.
+
+	 options.hooks is a function which takes a d3 selection. The d3 selection will be the button. Hooks can be used to modify the button. If not specified, it will default to a noop function.
 	 */
 	button: function(text, isActive, f, options) {
 	    if (typeof(text) !== 'string') {
@@ -103,6 +105,13 @@ module.exports = function(defaultCollection) {
 		throw new Error("If extraDisplayCondition is specified, it must be a function which returns true or false, was " + options.extraDisplayCondition);
 	    }
 
+	    if (options.element === undefined) {
+		options.element = "div";
+	    } else if (typeof(options.element) !== 'string') {
+		throw new Error("If element is specified, it must be a string which is the name of an HTML element, was " + options.element);
+	    }
+		
+
 	    if (options.hooks === undefined) {
 		options.hooks = function() {
 		    // no-op
@@ -115,6 +124,7 @@ module.exports = function(defaultCollection) {
 	    return {
 		text: text,
 		f: f,
+		element: options.element,
 		getState: function(menuState, ownsCurrentProcess) {
 		    if (
 			options.onlineOffline[menuState.online() ? "online" : "offline"]

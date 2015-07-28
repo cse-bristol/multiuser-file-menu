@@ -43,7 +43,7 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 
     buttonSpec.forEach(function(spec) {
 	var button = menuContainer.contentElement
-		.append('div')
+		.append(spec.element)
 		.datum(spec)
 	        .classed("menu-item", true)
 		.attr("id", function(d, i) {
