@@ -9,6 +9,7 @@ var d3 = require("d3"),
     callbacks = helpers.callbackHandler,
 
     searchFactory = require("./search.js"),
+    subMenuFactory = require("./sub-menu.js"),
 
     online = {
 	online: true,
@@ -98,16 +99,21 @@ module.exports = function(spec, backendSearch, collection) {
 	    }
 	),
 
+	historySubMenu = subMenuFactory(),
 	historyButton = spec.button(
 	    "History",
-	    function(menuState) {
-		return menuState.readOnly();
+	    function(menuState, ownsCurrentProcess) {
+		return historySubMenu.isEnabled();
 	    },
-	    function(wasActive) {
-		version = wasActive ? null : 0;
-		onOpen(title, version);
+	    function(wasActive, currentTitle, buttonElement, onProcessEnd) {
+		if (!wasActive) {
+		    return historySubMenu.startProcess(buttonElement, onProcessEnd);
+		} else {
+		    return null;
+		}
 	    },
 	    {
+		hover: true,
 		onlineOffline: online,
 		readWriteSync: {
 		    untitled: false,
@@ -115,7 +121,12 @@ module.exports = function(spec, backendSearch, collection) {
 		    write: true,
 		    sync: true
 		},		
-		embeddedStandalone: standalone
+		embeddedStandalone: standalone,
+		hooks: function(buttonElement) {
+		    var submenu = historySubMenu.init(buttonElement);
+
+		    submenu.text("Histoire");
+		}
 	    }
 	),
 

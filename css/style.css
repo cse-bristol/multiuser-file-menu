@@ -35,6 +35,10 @@
     pointer-events: auto;
 }
 
+.menu-item.disabled {
+    pointer-events: none;
+}
+
 .menu-item:hover {
     background-color: black;
     color: green;
@@ -146,4 +150,25 @@ Needed since z-index does not appear to work with css transitions.
     text-decoration: none;
     pointer-events: none;
     cursor: default;
+}
+
+.sub-menu-wrapper {
+    position: relative;
+    left: 6em;
+    top: -2em;
+    pointer-events: none;
+}
+
+.sub-menu {
+    position: absolute;
+    background-color: slategray;
+    color: white;
+    left: -50em;
+    transition: left 0.3s;
+    pointer-events: auto;
+    z-index: -1;
+}
+
+.sub-menu.enabled {
+    left: 0;
 }

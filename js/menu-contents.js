@@ -21,7 +21,12 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 		process = null;
 	    }
 	},
-	
+
+	processDied = function() {
+	    process = null;
+	    updateButtons();
+	},
+
 	setStateClass = function(selection, state) {
 	    selection.classed(state, function(d, i) {
 		return d.state === state;
@@ -38,11 +43,24 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 		})
 		.call(setStateClass, "active")
 	    	.call(setStateClass, "ready")
-	    	.call(setStateClass, "inactive");
+	    	.call(setStateClass, "disabled");
 	};
 
     buttonSpec.forEach(function(spec) {
-	var button = menuContainer.contentElement
+	var trigger = function() {
+		    killProcess();
+		    
+		    process = spec.f(
+			spec.state === "active",
+			getTitle(),
+			d3.select(this),
+			processDied
+		    );
+
+		    updateButtons();
+		},
+	
+	    button = menuContainer.contentElement
 		.append(spec.element)
 		.datum(spec)
 	        .classed("menu-item", true)
@@ -52,17 +70,11 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 	    	.text(function(d, i) {
 		    return spec.text;
 		})
-	    	.on("click", function(d, i) {
-		    killProcess();
-		    
-		    process = spec.f(
-			spec.state === "active",
-			getTitle(),
-			d3.select(this)
-		    );
+	    	.on("click", trigger);
 
-		    updateButtons();
-		});
+	if (spec.hover) {
+	    button.on("mouseenter", trigger);
+	}
 
 	spec.hooks(button);
     });
@@ -77,5 +89,4 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
     return {
 	updateButtons: updateButtons
     };
-    
 };

@@ -124,6 +124,7 @@ module.exports = function(defaultCollection) {
 	    return {
 		text: text,
 		f: f,
+		hover: options.hover,
 		element: options.element,
 		getState: function(menuState, ownsCurrentProcess) {
 		    if (
