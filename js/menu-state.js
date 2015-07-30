@@ -10,16 +10,14 @@ module.exports = function(
     embedded,
     onUp, onDown, isUp,
     onAutoSaveChanged, autoSave,
-    onTitleChanged, getTitle,
-    onVersionChanged, getVersion
+    onTitleOrVersionChange, getTitle, getVersion
 ) {
     var onChange = callbacks();
 
     onUp(onChange);
     onDown(onChange);
     onAutoSaveChanged(onChange);
-    onTitleChanged(onChange);
-    onVersionChanged(onChange);
+    onTitleOrVersionChange(onChange);
     
     var m = {
 	online: function() {

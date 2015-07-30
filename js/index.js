@@ -52,10 +52,7 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	    backend.isUp,
 	    store.onAutoSaveChanged,
 	    store.autoSave,
-	    standardButtons.onTitleChange,
-	    standardButtons.getTitle,
-	    standardButtons.onVersionChanged,
-	    standardButtons.getVersion
+	    standardButtons.onTitleOrVersionChange, standardButtons.getTitle, standardButtons.getVersion
 	),
 	menu;
 

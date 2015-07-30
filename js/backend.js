@@ -150,6 +150,19 @@ module.exports = function(maintainConnection, url) {
 		);
 	    },
 
+	    getVersionsList: function(coll, name, versionsFrom, callback, errback) {
+		d3.json(
+		    [url, "versions", coll, name, versionsFrom].join("/"),
+		    function(error, json) {
+			if (error) {
+			    errback(error.response);
+			} else {
+			    callback(json);
+			}
+		    }
+		);
+	    },
+
 	    deleteDoc: function(coll, name) {
 		ensureConnected();
 		var toDelete = connection.get(coll, name.toLowerCase());

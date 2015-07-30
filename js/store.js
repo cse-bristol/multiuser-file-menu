@@ -6,7 +6,9 @@ var _ = require("lodash"),
     helpers = require("./helpers.js"),
     isNum = helpers.isNum,
     noop = helpers.noop,
-    callbacks = helpers.callbackHandler;
+    callbacks = helpers.callbackHandler,
+
+    versionCacheFactory = require("./version-cache.js");
 
 /*
  Operates on a single collection.  Keeps track of the open sharejs document for that collection. 
@@ -19,15 +21,8 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
 	writing = false,
 
-	/*
-	 docVersion will be set to the version when we load a historical document. If we are in a current 'live' document (whether autosave or not), it should be set to null. 
-	 */
-	docVersion = null,
-	setVersion = function(v, latestV) {
-	    docVersion = v;
-	    documentControl.setVersion(v, latestV);
-	},
-	
+	versionCache = versionCacheFactory(collection, backend.getVersionsList, documentControl.setVersionsList),
+
 	autoSave = false,
 	onAutoSaveChanged = callbacks(),
 	setAutoSave = function(val) {
@@ -38,9 +33,9 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 	/*
 	 A helpful wrapper to make sure that we poke the version when we change the model.
 	 */
-	setModel = function(obj, version, latestAvailableVersion) {
+	setModel = function(obj, name, version, latestAvailableVersion) {
 	    setModelToObject(obj);
-	    setVersion(version, latestAvailableVersion);
+	    versionCache.updateVersions(name, latestAvailableVersion);
 	},
 	
 	onOp = callbacks(),
@@ -58,6 +53,8 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		
 		if (doc) {
 		    doc.on("after op", function(ops, context) {
+			versionCache.updateVersions(documentControl.getTitle());
+			
 			if (!writing && autoSave) {
 			    ops.forEach(function(op) {
 				onOp(op);
@@ -77,10 +74,17 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 	    if (!snapshot) {
 		doc.create("json0", serialized);
 	    } else {
-		doc.submitOp([{
-		    p: [],
-		    oi: serialized
-		}]);
+		doc.submitOp(
+		    [{
+			p: [],
+			oi: serialized
+		    }],
+		    function() {
+			versionCache.updateVersions(
+			    documentControl.getTitle()
+			);
+		    }
+		);
 	    }
 	    context = doc.createContext();
 	    
@@ -101,13 +105,13 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    setDoc(null);
 		    setModel(
 			deserialize(historical.doc),
+			name,
 			version,
 			historical.latestV
 		    );
 		},
 		function(error) {
-		    setVersion(version, null);
-		    documentControl.erroneousVersion();
+		    throw error;
 		}
 	    );
 
@@ -119,6 +123,7 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    setDoc(null);
 		    setModel(
 			deserialize(snapshot),
+			name,
 			null,
 			null
 		    );
@@ -138,6 +143,7 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    if (snapshot) {
 			setModel(
 			    deserialize(snapshot),
+			    name,
 			    null,
 			    doc.version
 			);
@@ -147,6 +153,7 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 			var model = freshModel();
 			setModel(
 			    model,
+			    name,
 			    null,
 			    doc.version
 			);
@@ -190,9 +197,12 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    if (context) {
 			context.submitOp(
 			    op instanceof Array ? op : [op],
-			    noop
+			    function() {
+				versionCache.updateVersions(
+				    documentControl.getTitle()
+				);
+			    }
 			);
-			setVersion(null, doc.version);
 		    }
 		} finally {
 		    writing = false;
@@ -219,10 +229,6 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    }
 		}
 	    );
-	},
-
-	getVersion: function() {
-	    return docVersion;
 	},
 
 	onAutoSaveChanged: onAutoSaveChanged.add,

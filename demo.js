@@ -88,7 +88,7 @@ menu.buildMenu(
 		    standalone: true
 		},
 		hooks: function(button) {
-		    menu.standard.onTitleChange(function(newTitle) {
+		    menu.standard.onTitleOrVersionChange(function(newTitle, newVersion) {
 			button.text("Title: " + newTitle);
 		    });
 		}

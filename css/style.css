@@ -167,8 +167,17 @@ Needed since z-index does not appear to work with css transitions.
     transition: left 0.3s;
     pointer-events: auto;
     z-index: -1;
+    width: 15em;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 20em;
+    text-align: left;
 }
 
 .sub-menu.enabled {
     left: 0;
+}
+
+.current-version {
+    border: 1px solid red;
 }

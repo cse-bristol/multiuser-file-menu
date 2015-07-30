@@ -30,9 +30,8 @@ var d3 = require("d3"),
  */
 module.exports = function(spec, backendSearch, collection) {
     var title = null,
-	onTitleChange = callbacks(),
-	version,
-	onVersionChanged = callbacks(),
+	onTitleOrVersionChange = callbacks(),
+	version = null,
     	onNew = callbacks(),
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
@@ -43,19 +42,30 @@ module.exports = function(spec, backendSearch, collection) {
 	    return searchFactory(backendSearch, collection, resultFunction, options);
 	},
 
-	setTitle = function(newTitle) {
+	setTitleAndVersion = function(newTitle, newVersion) {
+	    if (title === newTitle && version === newVersion) {
+		return;
+	    }
+
 	    title = newTitle;
-	    onTitleChange(title);
+
+	    if (isNum(newVersion)) {
+		version = parseInt(newVersion);
+	    } else {
+		version = newVersion;
+	    }
+
+	    onTitleOrVersionChange(title, version);
 	},
-	
+
 	newDoc = function() {
-	    setTitle(null);
+	    setTitleAndVersion(null, null);
 	    onNew();
 	},
 
-	open = function(name, version) {
-	    setTitle(name);
-	    onOpen(name, version);
+	open = function(title, version) {
+	    setTitleAndVersion(title, version);
+	    onOpen(title, version);
 	},
 
 	offlineIndicator = spec.button(
@@ -100,6 +110,41 @@ module.exports = function(spec, backendSearch, collection) {
 	),
 
 	historySubMenu = subMenuFactory(),
+	historyContent,
+	updateHistoryControls = function(versionsList) {
+	    if (historyContent) {
+		var versionEntries = historyContent
+			.selectAll(".version-entry")
+			.data(versionsList);
+
+		versionEntries.exit().remove();
+
+		versionEntries.enter()
+		    .append("div")
+		    .classed("version-entry", true)
+		    .text(function(d, i) {
+			return new Date(
+			    parseInt(d.ts)
+			)
+			    .toLocaleString();
+		    })
+		    .on("click", function(d, i) {
+			d3.event.stopPropagation();
+
+			if (d.v === version) {
+			    open(title, null);
+			} else {
+			    open(title, d.v);
+			}
+		    });
+
+		versionEntries.classed("current-version", function(d, i) {
+		    return d.v === version;
+		});
+
+		versionEntries.order();
+	    }
+	},
 	historyButton = spec.button(
 	    "History",
 	    function(menuState, ownsCurrentProcess) {
@@ -123,9 +168,7 @@ module.exports = function(spec, backendSearch, collection) {
 		},		
 		embeddedStandalone: standalone,
 		hooks: function(buttonElement) {
-		    var submenu = historySubMenu.init(buttonElement);
-
-		    submenu.text("Histoire");
+		    historyContent = historySubMenu.init(buttonElement);
 		}
 	    }
 	),
@@ -158,12 +201,12 @@ module.exports = function(spec, backendSearch, collection) {
 	deleteButton = spec.button(
 	    "Delete",
 	    null,
-	    function(result) {
-		if (result === title) {
-		    setTitle(null);
+	    function() {
+		if (title) {
+		    onDelete(title);
+		    setTitleAndVersion(null, null);
 		    onNew();
-		}		
-		onDelete(result);
+		}
 	    },
 	    {
 		onlineOffline: online,
@@ -197,7 +240,7 @@ module.exports = function(spec, backendSearch, collection) {
 		    return;
 		}
 		
-		setTitle(result, false);
+		setTitleAndVersion(result, null);
 		onSaveAs(result);
 	    },
 	    {
@@ -241,11 +284,10 @@ module.exports = function(spec, backendSearch, collection) {
 	    return standardButtons;
 	},
 	
-	setTitle: setTitle,
 	getTitle: function() {
 	    return title;
 	},
-	onTitleChange: onTitleChange.add,
+	onTitleOrVersionChange: onTitleOrVersionChange.add,
 	
 	newDoc: newDoc,
 	onNew: onNew.add,
@@ -258,38 +300,15 @@ module.exports = function(spec, backendSearch, collection) {
 
 	onAutoSaveChange: onAutoSaveChange.add,
 
-	/*
-	 ToDo
-
-	 We need a way to provide a list of dates for historical versions.
-	 */
-	setVersion: function(v, maxV) {
-	    if (isNum(maxV)) {
-		// ToDo
-	    }
-	    
-	    if (v !== version) {
-		if (isNum(v)) {
-		    version = v;
-		    // ToDo update history controls
-		} else {
-		    version = null;
-		}
-
-		onVersionChanged();
+	setVersionsList: function(documentName, versionsList) {
+	    if (documentName === title) {
+		updateHistoryControls(versionsList);
 	    }
 	},
 
 	getVersion: function() {
 	    return version;
-	},
-
-	erroneousVersion: function() {
-	    // ToDo do we still want this?
-	    // In what cases could it trigger?
-	},
-
-	onVersionChanged: onVersionChanged.add
+	}
     };
     return m;
 };
