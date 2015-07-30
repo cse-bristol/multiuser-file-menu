@@ -2,14 +2,28 @@
 
 /*global module, require*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+    helpers = require("./helpers.js"),
+    callbacks = helpers.callbackHandler;
 
 /*
  Provides UI buttons based on buttonSpec, which should be an array containing objects generated using specify-buttons.js.
  */
 module.exports = function(container, helpURL) {
-    var onHide,
+    var onVisibilityChanged = callbacks(),
 
+	updateVisibility = function(visible) {
+	    file.datum(visible);
+
+	    if (onVisibilityChanged) {
+		onVisibilityChanged(visible);
+	    }
+
+	    file.classed("active", visible);
+	    fileContents
+		.classed("active", visible);
+	},
+	
 	menu = container.append("div")
 	    .attr("id", "menu-bar"),
 
@@ -19,16 +33,7 @@ module.exports = function(container, helpURL) {
 	    .text("File")
 	    .datum(false)
 	    .on("click", function(d, i) {
-		d3.select(this)
-		    .datum(!d);
-
-		if (!d && onHide) {
-		    onHide();
-		}
-
-		file.classed("active", !d);
-		fileContents
-		    .classed("active", !d);
+		updateVisibility(!d);
 	    }),
 
 	help = menu.append("a")
@@ -44,8 +49,9 @@ module.exports = function(container, helpURL) {
 
     return {
 	contentElement: fileContents,
-	onHide: function(f) {
-	    onHide = f;
-	}
+	hide: function() {
+	    updateVisibility(false);
+	},
+	onVisibilityChanged: onVisibilityChanged.add
     };
 };

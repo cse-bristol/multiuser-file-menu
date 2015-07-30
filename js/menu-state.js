@@ -9,15 +9,15 @@ var helpers = require("./helpers.js"),
 module.exports = function(
     embedded,
     onUp, onDown, isUp,
-    onAutoSaveChanged, autoSave,
-    onTitleOrVersionChange, getTitle, getVersion
+    getAutosave, onAutosaveChanged,
+    getTitle, getVersion, onNavigate
 ) {
     var onChange = callbacks();
 
     onUp(onChange);
     onDown(onChange);
-    onAutoSaveChanged(onChange);
-    onTitleOrVersionChange(onChange);
+    onAutosaveChanged(onChange);
+    onNavigate(onChange);
     
     var m = {
 	online: function() {
@@ -45,7 +45,7 @@ module.exports = function(
 	},
 
 	sync: function() {
-	    return autoSave();
+	    return getAutosave();
 	},
 
 	/*

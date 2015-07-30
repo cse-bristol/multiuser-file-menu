@@ -4,13 +4,14 @@
 
 var iframeNoScroll = require("./iframe-noscroll"),
     backendFactory = require("./backend.js"),
-    menuContainerFactory = require("./menu.js"),
-    menuContentsFactory = require("./menu-contents.js"),
-    standardButtonFactory = require("./standard-buttons.js"),
     storeFactory = require("./store.js"),
     queryStringFactory = require("./query-string.js"),
-    buttonSpecFactory = require("./specify-buttons.js"),
     menuStateFactory = require("./menu-state.js"),
+    menuContainerFactory = require("./menu.js"),
+    menuContentsFactory = require("./menu-contents.js"),        
+    buttonSpecFactory = require("./buttons/specify-buttons.js"),
+    standardButtonFactory = require("./buttons/standard-buttons.js"),
+
     defaultUrl = function() {
 	var a = document.createElement("a");
 	a.href = "/";
@@ -25,7 +26,7 @@ var iframeNoScroll = require("./iframe-noscroll"),
 	}
     };
 
-module.exports = function(collection, serialize, deserialize, getModel, setModel, freshModel, url, helpURL) {
+module.exports = function(collection, friendlyName, serialize, deserialize, getModel, setModel, freshModel, url, helpURL) {
     var embedded = isEmbedded();
 
     if (embedded) {
@@ -34,25 +35,17 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
     
     var backend = backendFactory(!embedded, url ? url : defaultUrl),
 	buttonSpec = buttonSpecFactory(collection),
-	standardButtons = standardButtonFactory(
-	    buttonSpec,
-	    backend.search,
-	    collection
-	),
-	
-	store = storeFactory(!embedded, collection, backend, standardButtons, serialize, deserialize, getModel, setModel, freshModel),
+
+	store = storeFactory(!embedded, collection, backend, serialize, deserialize, getModel, setModel, freshModel),
 	queryString = queryStringFactory(
-	    standardButtons,
-	    collection
+	    collection,
+	    store
 	),
 	menuState = menuStateFactory(
 	    embedded,
-	    backend.onUp,
-	    backend.onDown,
-	    backend.isUp,
-	    store.onAutoSaveChanged,
-	    store.autoSave,
-	    standardButtons.onTitleOrVersionChange, standardButtons.getTitle, standardButtons.getVersion
+	    backend.onUp, backend.onDown, backend.isUp,
+	    store.getAutosave, store.onAutosaveChanged, 
+	    store.getTitle, store.getVersion, store.onNavigate
 	),
 	menu;
 
@@ -68,19 +61,32 @@ module.exports = function(collection, serialize, deserialize, getModel, setModel
 	backend: backend,
 	store: store,
 	queryString: queryString,
-	standard: standardButtons,
 	spec: buttonSpec,
-	buildMenu: function(container, buttons, excludeStandardButtons) {
+	buildMenu: function(container) {
 	    var menuContainer = menuContainerFactory(container, helpURL);
-
-	    buttons = excludeStandardButtons ? buttons : standardButtons.buttonSpec().concat(buttons);
-	    
 	    menu = menuContentsFactory(
 		menuContainer,
-		buttons,
-		standardButtons.getTitle,
+		store.getTitle,
 		menuState
 	    );
+	    
+	    var standardButtons = standardButtonFactory(
+		buttonSpec,
+		store,
+		backend.search,
+		menuContainer.hide,
+		collection,
+		friendlyName
+	    );
+	    
+	    return {
+		standardButtons: standardButtons,
+		setButtons: function(buttons, excludeStandardButtons) {
+		    menu.setButtons(
+			excludeStandardButtons ? buttons : standardButtons.concat(buttons)
+		    );
+		}
+	    };
 	},
 	
 	menu: function() {

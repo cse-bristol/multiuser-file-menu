@@ -82,11 +82,10 @@ module.exports = function() {
 	    return menu;
 	},
 
-	startProcess: function(buttonElement, onProcessEnd) {
+	startProcess: function(onProcessEnd) {
 	    onExit = onProcessEnd;
 	    enable();
 	    return {
-		button: buttonElement,
 		exit: function() {
 		    onExit = null;
 		    disable();

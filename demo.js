@@ -22,8 +22,9 @@ var d3 = require("d3"),
 	return o;
     },
     toggle = false,
-    menu = require("./js/index.js")(
+    menuModule = require("./js/index.js")(
 	coll,
+	"demo",
 	identity,
 	identity,
 	function() {
@@ -37,15 +38,15 @@ var d3 = require("d3"),
 	    return {
 		text: "type here"
 	    };
-	});
+	}),
 
-menu.buildMenu(
-    body,
-    /* 
-     Example of how to add some extra buttons to the menu.
-     */
+    spec = menuModule.spec,
+
+    menu = menuModule.buildMenu(body);
+
+menu.setButtons(
     [
-	menu.spec.button(
+	spec.button(
 	    /*
 	     This button searches a collection and alerts when a user clicks a result.
 	     */
@@ -65,13 +66,13 @@ menu.buildMenu(
 		},
 		search: {
 		    collection: coll,
-		    excludeTerms: menu.spec.matchEmpty,
+		    excludeTerms: spec.matchEmpty,
 		    includeSearchTerm: true
 		}
 	    }
 	),
 
-	menu.spec.button(
+	spec.button(
 	    /*
 	     This button changes text every time the title of the page changes.
 	     
@@ -88,14 +89,14 @@ menu.buildMenu(
 		    standalone: true
 		},
 		hooks: function(button) {
-		    menu.standard.onTitleOrVersionChange(function(newTitle, newVersion) {
+		    menuModule.store.onNavigate(function(newTitle, newVersion) {
 			button.text("Title: " + newTitle);
 		    });
 		}
 	    }
 	),
 
-	menu.spec.button(
+	spec.button(
 	    /*
 	     Embeds an iframe in the page.
 	     */
@@ -119,14 +120,14 @@ menu.buildMenu(
 	    }
 	),
 
-	menu.spec.button(
+	spec.button(
 	    /*
 	     Makes an arbitrary change to the iframe's query string, allowing us to test it's messaging and history stuff.
 	     */
 	    "Push history",
 	    null,
 	    function() {
-		menu.queryString.param(
+		menuModule.queryString.param(
 		    "random",
 		    function(val) {
 			console.log("random", val);
@@ -136,7 +137,7 @@ menu.buildMenu(
 		    }
 		);
 
-		menu.queryString.toURL();
+		menuModule.queryString.toURL();
 	    },
 	    {
 		embeddedStandalone: {
@@ -146,7 +147,7 @@ menu.buildMenu(
 	    }
 	),
 
-	menu.spec.button(
+	spec.button(
 	    "Toggle",
 	    function() {
 		return toggle;
@@ -158,7 +159,7 @@ menu.buildMenu(
 	)	
     ]);
 
-menu.queryString.fromURL();
+menuModule.queryString.fromURL();
 
 window.addEventListener("message", function(event) {
     console.log("iframe message", event.data, event.source.frameElement);

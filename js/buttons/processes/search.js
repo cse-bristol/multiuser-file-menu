@@ -2,9 +2,10 @@
 
 /*global module, require*/
 
-var callbacks = require("./helpers.js").callbackHandler,
-    _ = require("lodash"),
+var     _ = require("lodash"),
     d3 = require("d3"),
+    callbacks = require("../../helpers.js").callbackHandler,
+    
     highlightedResult = "highlighted-result",
     searchResult = "search-result",
     
@@ -17,8 +18,8 @@ var callbacks = require("./helpers.js").callbackHandler,
 
  options.currentPage will have the class .search-result-current-page added to it.
  */
-module.exports = function(searchFunction, collection, resultFunction, options) {
-    return function(wasActive, currentTitle, buttonElement) {
+module.exports = function(searchFunction, getTitle, collection, resultFunction, options) {
+    return function(wasActive, buttonElement) {
 	if (wasActive) {
 	    return null;
 	}
@@ -168,7 +169,7 @@ module.exports = function(searchFunction, collection, resultFunction, options) {
 				hideResults(5);
 			    })
 			    .classed("search-result-current-page", function(d, i) {
-				return d === currentTitle;
+				return d === getTitle();
 			    })
 			    .classed("search-result-fabricated", function(d, i) {
 				return addedVal && d === val;
@@ -196,8 +197,7 @@ module.exports = function(searchFunction, collection, resultFunction, options) {
 	search.node().focus();
 
 	return {
-	    exit: hideResults,
-	    button: buttonElement
+	    exit: hideResults
 	};
     };
 };

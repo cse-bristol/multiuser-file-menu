@@ -8,11 +8,11 @@ var d3 = require("d3"),
 /*
  Controls which buttons are currently hidden or displayed within the menu.
  */
-module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
+module.exports = function(menuContainer, getTitle, menuState) {
     /*
      A process represents a sequences of steps that a button may initiate.
      Clicking a button ends the current process.
-    */
+     */
     var process = null,
 
 	killProcess = function() {
@@ -38,7 +38,7 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 		.each(function(d, i) {
 		    d.state = d.getState(
 			menuState,
-			process && process.button.datum() === d
+			process && process.buttonSpec === d
 		    );
 		})
 		.call(setStateClass, "active")
@@ -46,47 +46,54 @@ module.exports = function(menuContainer, buttonSpec, getTitle, menuState) {
 	    	.call(setStateClass, "disabled");
 	};
 
-    buttonSpec.forEach(function(spec) {
-	var trigger = function() {
-		    killProcess();
-		    
-		    process = spec.f(
-			spec.state === "active",
-			getTitle(),
-			d3.select(this),
-			processDied
-		    );
 
-		    updateButtons();
-		},
-	
-	    button = menuContainer.contentElement
-		.append(spec.element)
-		.datum(spec)
-	        .classed("menu-item", true)
-		.attr("id", function(d, i) {
-		    return "file-menu-" + spec.text;
-		})
-	    	.text(function(d, i) {
-		    return spec.text;
-		})
-	    	.on("click", trigger);
-
-	if (spec.hover) {
-	    button.on("mouseenter", trigger);
-	}
-
-	spec.hooks(button);
-    });
 
     menuState.onChange(updateButtons);
-    menuContainer.onHide(function() {
+    menuContainer.onVisibilityChanged(function() {
 	killProcess();
 	updateButtons();
     });
     updateButtons();
 
     return {
+	setButtons: function(buttonSpec) {
+	    buttonSpec.forEach(function(spec) {
+		var trigger = function() {
+		    var wasActive = spec.state === "active";
+
+		    killProcess();
+
+		    process = spec.f(
+			wasActive,
+			d3.select(this),
+			processDied
+		    );
+		    if (process) {
+			process.buttonSpec = spec;
+		    }
+
+		    updateButtons();
+		},
+		    
+		    button = menuContainer.contentElement
+			.append(spec.element)
+			.datum(spec)
+			.classed("menu-item", true)
+			.attr("id", function(d, i) {
+			    return "file-menu-" + spec.text;
+			})
+	    		.text(function(d, i) {
+			    return spec.text;
+			})
+	    		.on("click", trigger);
+
+		if (spec.hover) {
+		    button.on("mouseenter", trigger);
+		}
+
+		spec.hooks(button);
+	    });
+	},
 	updateButtons: updateButtons
     };
 };

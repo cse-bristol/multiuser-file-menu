@@ -181,3 +181,37 @@ Needed since z-index does not appear to work with css transitions.
 .current-version {
     border: 1px solid red;
 }
+
+.modal {
+    width: 20em;
+    height: 20em;
+    z-index: 9999999;
+    margin: auto;
+    border: 1px solid black;
+}
+
+.comment label {
+    cursor: pointer;
+    text-decoration: underline;
+    color: grey;
+    vertical-align: top;
+}
+
+.comment.expanded label {
+    color: black;
+}
+
+.comment textarea {
+    display: none;    
+}
+
+.comment.expanded textarea {
+    display: inline;
+}
+
+.dialogue-action {
+    float: right;
+    background: green;
+    cursor: pointer;
+    padding: 0.5em;
+}

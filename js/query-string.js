@@ -13,7 +13,7 @@ var _ = require("lodash"),
 
  When the web page is loaded, loads the document from the name field of the query string.  
  */
-module.exports = function(standardButtons, collection) {
+module.exports = function(collection, store) {
     var url,
 	params = d3.map(),
 
@@ -61,10 +61,10 @@ module.exports = function(standardButtons, collection) {
 		var title = decodeURIComponent(url.query.name),
 		    version = url.query.v ? decodeURIComponent(url.query.v) : null;
 
-		standardButtons.open(title, version);
+		store.openDocument(title, version);
 		document.title = title;
 	    } else {
-		standardButtons.newDoc();
+		store.newDocument();
 	    }
 	    reading = false;
 
@@ -103,8 +103,8 @@ module.exports = function(standardButtons, collection) {
 	    query: {},
 	    hash: url.hash
 	},
-	    name = standardButtons.getTitle(),
-	    version = standardButtons.getVersion();
+	    name = store.getTitle(),
+	    version = store.getVersion();
 
 	if (name) {
 	    newURL.query.name = encodeURIComponent(name);
@@ -140,10 +140,8 @@ module.exports = function(standardButtons, collection) {
     d3.select(window).on("popstate", function() {
 	fromURL.apply(this, arguments);
     });
-    
-    standardButtons.onNew(toURL);
-    standardButtons.onOpen(toURL);
-    standardButtons.onSaveAs(toURL);
+
+    store.onNavigate(toURL);
 
     return {
 	/*

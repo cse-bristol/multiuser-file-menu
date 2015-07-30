@@ -12,29 +12,51 @@ var _ = require("lodash"),
 
 /*
  Operates on a single collection.  Keeps track of the open sharejs document for that collection. 
-
- Translates things the user does with the document control into actions on the backend.
  */
-module.exports = function(maintainConnection, collection, backend, documentControl, serialize, deserialize, getModel, setModelToObject, freshModel) {
-    var doc,
+module.exports = function(maintainConnection, collection, backend, serialize, deserialize, getModel, setModelToObject, freshModel) {
+    var title = null,
+	version = null,
+	onNavigate = callbacks(),
+
+	navigate = function(newTitle, newVersion) {
+	    if (title === newTitle && version === newVersion) {
+		return;
+	    }
+	    
+	    title = newTitle;
+
+	    if (isNum(newVersion)) {
+		version = parseInt(newVersion);
+	    } else {
+		version = newVersion;
+	    }
+
+	    onNavigate(title, version);
+	},
+
+	autosave = false,
+
+	onAutosaveChanged = callbacks(),
+
+	setAutosave = function(newAutoSave) {
+	    autosave = newAutoSave;
+	    
+	    onAutosaveChanged(newAutoSave);
+	},
+	
+	doc,
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
 	writing = false,
 
-	versionCache = versionCacheFactory(collection, backend.getVersionsList, documentControl.setVersionsList),
-
-	autoSave = false,
-	onAutoSaveChanged = callbacks(),
-	setAutoSave = function(val) {
-	    autoSave = val;
-	    onAutoSaveChanged(val);
-	},
+	versionCache = versionCacheFactory(collection, backend.getVersionsList),
 
 	/*
 	 A helpful wrapper to make sure that we poke the version when we change the model.
 	 */
 	setModel = function(obj, name, version, latestAvailableVersion) {
 	    setModelToObject(obj);
+	    navigate(name, version);
 	    versionCache.updateVersions(name, latestAvailableVersion);
 	},
 	
@@ -49,13 +71,13 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		}
 		
 		doc = newDoc;
-		setAutoSave(false);
+		setAutosave(false);
 		
 		if (doc) {
 		    doc.on("after op", function(ops, context) {
-			versionCache.updateVersions(documentControl.getTitle());
+			versionCache.updateVersions(title);
 			
-			if (!writing && autoSave) {
+			if (!writing && autosave) {
 			    ops.forEach(function(op) {
 				onOp(op);
 			    });
@@ -81,7 +103,7 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    }],
 		    function() {
 			versionCache.updateVersions(
-			    documentControl.getTitle()
+			    title
 			);
 		    }
 		);
@@ -93,104 +115,125 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 
 	loadFromCollection = function(name, f) {
 	    backend.load(collection, name, f);
+	},
+
+	newDocument = function() {
+	    setDoc(null);
+	    setModel(freshModel());
 	};
     
-    documentControl.onOpen(function(name, version) {
-	if (isNum(version)) {
-	    backend.loadVersion(
-		collection,
-		name,
-		version,
-		function(historical) {
-		    setDoc(null);
-		    setModel(
-			deserialize(historical.doc),
-			name,
-			version,
-			historical.latestV
-		    );
-		},
-		function(error) {
-		    throw error;
-		}
-	    );
+    return {
+	getTitle: function() {
+	    return title;
+	},
 
-	} else if (!maintainConnection) {
-	    backend.loadSnapshot(
-		collection,
-		name,
-		function(snapshot) {
-		    setDoc(null);
-		    setModel(
-			deserialize(snapshot),
-			name,
-			null,
-			null
-		    );
-		},
-		function(error) {
-		    throw new Error(error);
-		}
-	    );
-	    
-	} else {
-	    loadFromCollection(
-		name,
-		function(loaded) {
-		    setDoc(loaded);
-		    var snapshot = doc.getSnapshot();
-		    
-		    if (snapshot) {
+	getVersion: function() {
+	    return version;
+	},
+
+	onNavigate: onNavigate.add,
+
+	getAutosave: function() {
+	    return autosave;
+	},
+
+	onAutosaveChanged: onAutosaveChanged.add,
+
+	onVersionsListUpdated: versionCache.onVersionsUpdated,
+	
+	newDocument: newDocument,
+
+	openDocument: function(name, version) {
+	    if (isNum(version)) {
+		backend.loadVersion(
+		    collection,
+		    name,
+		    version,
+		    function(historical) {
+			setDoc(null);
+			setModel(
+			    deserialize(historical.doc),
+			    name,
+			    version,
+			    historical.latestV
+			);
+		    },
+		    function(error) {
+			throw error;
+		    }
+		);
+
+	    } else if (!maintainConnection) {
+		backend.loadSnapshot(
+		    collection,
+		    name,
+		    function(snapshot) {
+			setDoc(null);
 			setModel(
 			    deserialize(snapshot),
 			    name,
 			    null,
-			    doc.version
+			    null
 			);
-			context = doc.createContext();
-			
-		    } else {
-			var model = freshModel();
-			setModel(
-			    model,
-			    name,
-			    null,
-			    doc.version
-			);
+		    },
+		    function(error) {
+			throw new Error(error);
 		    }
-		}
-	    );
-	}
-    });
+		);
+		
+	    } else {
+		loadFromCollection(
+		    name,
+		    function(loaded) {
+			setDoc(loaded);
+			var snapshot = doc.getSnapshot();
+			
+			if (snapshot) {
+			    setModel(
+				deserialize(snapshot),
+				name,
+				null,
+				doc.version
+			    );
+			    context = doc.createContext();
+			    
+			} else {
+			    var model = freshModel();
+			    setModel(
+				model,
+				name,
+				null,
+				doc.version
+			    );
+			}
+		    }
+		);
+	    }
+	},
 
-    documentControl.onDelete(function(name) {
-	backend.deleteDoc(collection, name);
-    });
+	saveDocument: function(name) {
+	    if (doc && doc.name === name) {
+		saveDoc(getModel());
+		
+	    } else {
+		loadFromCollection(
+		    name,
+		    function(loaded) {
+			setDoc(loaded);
+			saveDoc(getModel());
+		    });
+	    }
+	},
 
-    documentControl.onSaveAs(function(name) {
-	if (doc && doc.name === name) {
-	    saveDoc(getModel());
-
-	} else {
-	    loadFromCollection(
-		name,
-		function(loaded) {
-		    setDoc(loaded);
-		    saveDoc(getModel());
-		});
-	}
-    });
-
-    documentControl.onNew(function() {
-	setDoc(null);
-	setModel(freshModel());
-    });
-
-    documentControl.onAutoSaveChange(setAutoSave);
-
-    return {
+	deleteDocument: function(name) {
+	    backend.deleteDoc(collection, name);
+	    if (name === title) {
+		newDocument();
+	    }
+	},
+	
 	writeOp: function(op) {
-	    if (autoSave) {
+	    if (autosave) {
 		writing = true;
 		try {
 		    // If we don't have a document context yet, there's no point trying to send operations to it.
@@ -199,7 +242,7 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 			    op instanceof Array ? op : [op],
 			    function() {
 				versionCache.updateVersions(
-				    documentControl.getTitle()
+				    title
 				);
 			    }
 			);
@@ -229,14 +272,6 @@ module.exports = function(maintainConnection, collection, backend, documentContr
 		    }
 		}
 	    );
-	},
-
-	onAutoSaveChanged: onAutoSaveChanged.add,
-
-	autoSave: function() {
-	    return autoSave;
-	},
-
-	setAutoSave: setAutoSave
+	}
     };
 };

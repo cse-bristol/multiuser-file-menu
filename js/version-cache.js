@@ -2,15 +2,18 @@
 
 /*global module, require*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+    helpers = require("./helpers.js"),
+    callbacks = helpers.callbackHandler;
 
 /*
  Keeps track of the known versions of particular documents.
 
  Requests updates as required.
  */
-module.exports = function(collection, fetchVersionsFromCollection, onVersionsUpdated) {
+module.exports = function(collection, fetchVersionsFromCollection) {
     var versionsByName = d3.map(),
+	onVersionsUpdated = callbacks(),
 
 	listVersions = function(documentName) {
 	    if (versionsByName.has(documentName)) {
@@ -60,6 +63,7 @@ module.exports = function(collection, fetchVersionsFromCollection, onVersionsUpd
 
     return {
 	listVersions: listVersions,
-	updateVersions: updateVersions
+	updateVersions: updateVersions,
+	onVersionsUpdated: onVersionsUpdated.add
     };
 };
