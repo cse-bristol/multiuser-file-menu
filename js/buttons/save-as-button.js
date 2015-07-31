@@ -59,8 +59,11 @@ module.exports = function(store, spec, closeFileMenu, friendlyName) {
 
 		projectOptionPlaceholder = projectSelect.append("option")
 		    .text("Project Name")
+		    .classed("option-placeholder", true)
+		    .attr("value", "")
+	    	    .attr("default", "")
 		    .attr("disabled", true)
-		    .attr("selected", true),
+		    .attr("selected", "selected"),
 
 		projectOptions = projectSelect.selectAll("option.project-choice")
 		    .data(["Dummy Project"]);
@@ -84,11 +87,7 @@ module.exports = function(store, spec, closeFileMenu, friendlyName) {
 	},
 	{
 	    onlineOffline: online,
-	    embeddedStandalone: standalone,
-	    search: {
-		excludeTerms: spec.matchEmpty,
-		includeSearchTerm: true
-	    }
+	    embeddedStandalone: standalone
 	}
     );
 };

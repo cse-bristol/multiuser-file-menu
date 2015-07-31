@@ -244,3 +244,7 @@ This is because Internet Explorer 10 and below do not support Flexbox.
     cursor: pointer;
     padding: 0.5em;
 }
+
+.option-placeholder {
+    display: none;
+}
