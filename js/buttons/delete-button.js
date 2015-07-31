@@ -55,7 +55,12 @@ module.exports = function(store, specifyButton, closeFileMenu) {
 	{
 	    onlineOffline: online,
 	    embeddedStandalone: standalone,
-	    search: {}
+	    readWriteSync: {
+		untitled: false,
+		read: false,
+		write: true,
+		sync: true
+	    }
 	}
     );
 };
