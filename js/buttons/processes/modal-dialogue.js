@@ -10,12 +10,24 @@ var d3 = require("d3");
 module.exports = function(closeFileMenu) {
     // This needs a way to hide the menu.
     return function(wasActive, buttonElement, onProcessEnd, submit) {
-	var dialogue = d3.select("body")
+	var exit = function() {
+	    wrapper.remove();
+	    onProcessEnd();
+	},
+
+	    wrapper = d3.select("body")
+		.append("div")
+		.classed("modal-wrapper", true)
+		.on("click", exit),
+	    
+	    dialogue = wrapper
 		.append("form")
 		.on("submit", function(d, i) {
 		    d3.event.preventDefault();
-		    
 		    submit();
+		})
+		.on("click", function() {
+		    d3.event.stopPropagation();
 		})
 		.classed("modal", true);
 
@@ -23,11 +35,7 @@ module.exports = function(closeFileMenu) {
 
 	return {
 	    element: dialogue,
-	    
-	    exit: function() {
-		dialogue.remove();
-		onProcessEnd();		
-	    }
+	    exit: exit
 	};
     };
 };

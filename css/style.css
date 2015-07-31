@@ -182,12 +182,41 @@ Needed since z-index does not appear to work with css transitions.
     border: 1px solid red;
 }
 
+/*
+.modal-wrapper and its 'before:' pseudo-element are used to vertically centre the dialogue.
+
+See: https://css-tricks.com/centering-in-the-unknown/
+
+This is because Internet Explorer 10 and below do not support Flexbox.
+ */
+.modal-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    z-index: 9999999;
+    text-align: center;
+}
+
+.modal-wrapper:before {
+    content: '';
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: -0.25em;
+}
+
 .modal {
     width: 20em;
-    height: 20em;
-    z-index: 9999999;
     margin: auto;
+    display: inline-block;
+    vertical-align: middle;
     border: 1px solid black;
+    text-align: left;
 }
 
 .comment label {
