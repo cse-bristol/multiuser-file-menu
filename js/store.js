@@ -94,7 +94,12 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 		serialized = serialize(model);
 	    
 	    if (!snapshot) {
-		doc.create("json0", serialized);
+		doc.create("json0", serialized, function() {
+		    versionCache.updateVersions(
+			title
+		    );
+		});
+
 	    } else {
 		doc.submitOp(
 		    [{
@@ -220,6 +225,7 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 		    name,
 		    function(loaded) {
 			setDoc(loaded);
+			navigate(name, null);
 			saveDoc(getModel());
 		    });
 	    }
