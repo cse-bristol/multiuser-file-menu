@@ -7,7 +7,7 @@ var iframeNoScroll = require("./iframe-noscroll"),
     storeFactory = require("./store.js"),
     queryStringFactory = require("./query-string.js"),
     menuStateFactory = require("./menu-state.js"),
-    menuContainerFactory = require("./menu.js"),
+    menuContainerFactory = require("./menu-container.js"),
     menuContentsFactory = require("./menu-contents.js"),        
     buttonSpecFactory = require("./buttons/specify-buttons.js"),
     standardButtonFactory = require("./buttons/standard-buttons.js"),
@@ -74,7 +74,7 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 		buttonSpec,
 		store,
 		backend.search,
-		menuContainer.hide,
+		menuContainer,
 		collection,
 		friendlyName
 	    );

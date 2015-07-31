@@ -25,9 +25,12 @@ module.exports = function(container, helpURL) {
 	},
 	
 	menu = container.append("div")
+	    .attr("id", "menu"),
+
+	menuBar = menu.append("div")
 	    .attr("id", "menu-bar"),
 
-	file = menu.append("div")
+	file = menuBar.append("div")
 	    .attr("id", "file-menu")
 	    .classed("menu-item", true)
 	    .text("File")
@@ -36,7 +39,7 @@ module.exports = function(container, helpURL) {
 		updateVisibility(!d);
 	    }),
 
-	help = menu.append("a")
+	help = menuBar.append("a")
 	    .attr("id", "help")
 	    .classed("menu-item", true)    
 	    .text("? Help")
@@ -48,6 +51,7 @@ module.exports = function(container, helpURL) {
 	    .attr("id", "file-menu-contents");
 
     return {
+	menuBar: menuBar,
 	contentElement: fileContents,
 	hide: function() {
 	    updateVisibility(false);

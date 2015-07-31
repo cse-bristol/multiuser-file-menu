@@ -142,6 +142,8 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 	    return autosave;
 	},
 
+	setAutosave: setAutosave,
+
 	onAutosaveChanged: onAutosaveChanged.add,
 
 	onVersionsListUpdated: versionCache.onVersionsUpdated,

@@ -1,4 +1,4 @@
-#menu-bar {
+#menu {
     color: white;
     font-size: large;
     font-family: monospace;
@@ -47,11 +47,18 @@
 /* Top level menu buttons  */
 #menu-bar .menu-item {
     display: inline-block;
-    background-color: rosybrown;
+    background-color: slategray;
+    cursor: pointer;
 }
 
-#file-menu {
-    cursor: pointer;
+#menu-bar #autosave-indicator {
+    display: none;
+    width: 9em;
+    margin-left: 1em;
+}
+
+#menu-bar #autosave-indicator.enabled {
+    display: inline-block;
 }
 
 #file-menu-contents .menu-item {

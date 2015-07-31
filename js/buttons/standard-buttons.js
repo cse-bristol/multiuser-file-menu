@@ -9,6 +9,7 @@ var d3 = require("d3"),
 
     searchFactory = require("./processes/search.js"),
     saveAsButtonFactory = require("./save-as-button.js"),
+    autosaveButtonFactory = require("./autosave-button.js"),
     historyButtonFactory = require("./history-button.js"),
     deleteButtonFactory = require("./delete-button.js"),
 
@@ -29,7 +30,7 @@ var d3 = require("d3"),
 
  Keeps track of the document title, and whether or not it is a temporary title.
  */
-module.exports = function(spec, store, backendSearch, closeFileMenu, collection, friendlyName) {
+module.exports = function(spec, store, backendSearch, menuContainer, collection, friendlyName) {
     var searchProcess = function(resultFunction, options) {
 	return searchFactory(backendSearch, store.getTitle, collection, resultFunction, options);
     },
@@ -75,31 +76,6 @@ module.exports = function(spec, store, backendSearch, closeFileMenu, collection,
 	    }
 	),
 
-	autosaveButton = spec.button(
-	    "Auto",
-	    function(menuState) {
-		return store.getAutosave();
-	    },
-	    function(wasActive) {
-		if (!wasActive) {
-		    /*
-		     Sync the document before listening to changes.
-		     */
-		    store.saveDocument(store.getTitle());
-		}
-		store.setAutosave(!wasActive);
-	    },
-	    {
-		onlineOffline: online,
-		readWriteSync: {
-		    untitled: false,
-		    read: false,
-		    write: true,
-		    sync: true
-		}
-	    }
-	),
-
 	saveButton = spec.button(
 	    "Save",
 	    null,
@@ -139,10 +115,10 @@ module.exports = function(spec, store, backendSearch, closeFileMenu, collection,
 	    newButton,
 	    openButton,
 	    saveButton,
-	    saveAsButtonFactory(store, spec, closeFileMenu, friendlyName),
-	    autosaveButton,
+	    saveAsButtonFactory(store, spec, menuContainer.hide, friendlyName),
+	    autosaveButtonFactory(store, spec.button, menuContainer.menuBar),
 	    historyButtonFactory(store, spec.button),
-	    deleteButtonFactory(store, spec.button, closeFileMenu)
+	    deleteButtonFactory(store, spec.button, menuContainer.hide)
 	];
 
     return standardButtons;
