@@ -39,7 +39,7 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 	    "Connecting",
 	    null,
 	    function() {
-		// Noop
+		return true;
 	    },
 	    {
 		onlineOffline: {
@@ -49,8 +49,7 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 		embeddedStandalone: standalone,
 		hooks: function(el) {
 		    el.attr("id", "offline-indicator")
-			.classed("active", true)
-			.style("width", "8em");
+			.classed("active", true);
 		}
 	    }
 	),
