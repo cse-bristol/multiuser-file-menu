@@ -224,6 +224,7 @@ This is because Internet Explorer 10 and below do not support Flexbox.
     vertical-align: middle;
     border: 1px solid black;
     text-align: left;
+    background-color: white;
 }
 
 .comment label {
