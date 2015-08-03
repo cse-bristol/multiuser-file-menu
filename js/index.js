@@ -81,11 +81,7 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 	    
 	    return {
 		standardButtons: standardButtons,
-		setButtons: function(buttons, excludeStandardButtons) {
-		    menu.setButtons(
-			excludeStandardButtons ? buttons : standardButtons.concat(buttons)
-		    );
-		}
+		setButtons: menu.setButtons
 	    };
 	},
 	

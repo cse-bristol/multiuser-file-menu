@@ -45,7 +45,8 @@ var d3 = require("d3"),
     menu = menuModule.buildMenu(body);
 
 menu.setButtons(
-    [
+    menu.standardButtons.ordered.concat
+    ([
 	spec.button(
 	    /*
 	     This button searches a collection and alerts when a user clicks a result.
@@ -157,7 +158,7 @@ menu.setButtons(
 	    },
 	    {}
 	)	
-    ]);
+    ]));
 
 menuModule.queryString.fromURL();
 
