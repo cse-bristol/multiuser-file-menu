@@ -95,20 +95,6 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 	    }
 	),
 	
-	popOutButton = spec.button(
-	    "Pop Out",
-	    null,
-	    function() {
-		window.open(document.location, "_blank");
-	    },
-	    {
-		embeddedStandalone: {
-		    embedded: true,
-		    standalone: false
-		}
-	    }
-	),
-
 	saveAsButton = saveAsButtonFactory(store, spec, menuContainer.hide, friendlyName),
 	autosaveButton = autosaveButtonFactory(store, spec.button, menuContainer.menuBar),
 	historyButton = historyButtonFactory(store, spec.button),
@@ -116,7 +102,6 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 
 	order = [
 	    offlineIndicator,
-	    popOutButton,
 	    newButton,
 	    openButton,
 	    saveButton,
