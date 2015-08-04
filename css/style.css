@@ -63,6 +63,11 @@
     display: inline-block;
 }
 
+#file-menu.active {
+    background-color: black;
+    color: green;
+}
+
 #file-menu-contents .menu-item {
     display: block;
     background-color: black;
@@ -75,14 +80,13 @@
     cursor: pointer;
 }
 
+#file-menu-contents .menu-item.ready:hover {
+    color: green;
+}
+
 #file-menu-contents .menu-item.active {
     color: green;
     cursor: pointer;
-}
-
-#file-menu.active {
-    background-color: black;
-    color: green;
 }
 
 /*
