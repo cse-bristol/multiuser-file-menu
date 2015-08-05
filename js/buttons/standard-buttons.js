@@ -5,6 +5,7 @@
 var d3 = require("d3"),
     _ = require("lodash"),
     helpers = require("../helpers.js"),
+    noop = helpers.noop,
     isNum = helpers.isNum,
 
     searchFactory = require("./processes/search.js"),
@@ -93,7 +94,14 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 		}
 	    }
 	),
-	
+
+	exitButton = spec.button(
+	    "Exit",
+	    null,
+	    noop,
+	    {}
+	),
+	    
 	saveAsButton = saveAsButtonFactory(store, spec, menuContainer.hide, friendlyName),
 	autosaveButton = autosaveButtonFactory(store, spec.button, menuContainer.menuBar),
 	historyButton = historyButtonFactory(store, spec.button),
@@ -107,7 +115,8 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 	    saveAsButton,
 	    autosaveButton,
 	    historyButton,
-	    deleteButton
+	    deleteButton,
+	    exitButton
 	];
 
     /*
