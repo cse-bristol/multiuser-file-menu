@@ -20,12 +20,8 @@
     -ms-user-select: none;
 }
 
-#menu-bar .menu-item {
-    text-align: right;
-}
-
 @media print {
-    #menu-bar {
+    #menu {
     	display: none !important;
     }
 }
@@ -48,9 +44,11 @@
 
 /* Top level menu buttons  */
 #menu-bar .menu-item {
+    text-align: right;
     display: inline-block;
     background-color: slategray;
     cursor: pointer;
+    vertical-align: top;
 }
 
 #menu-bar #autosave-indicator {
