@@ -46,8 +46,7 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 	    backend.onUp, backend.onDown, backend.isUp,
 	    store.getAutosave, store.onAutosaveChanged, 
 	    store.getTitle, store.getVersion, store.onNavigate
-	),
-	menu;
+	);
 
     queryString.param(
 	"debug",
@@ -63,12 +62,12 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 	queryString: queryString,
 	spec: buttonSpec,
 	buildMenu: function(container) {
-	    var menuContainer = menuContainerFactory(container, helpURL);
-	    menu = menuContentsFactory(
-		menuContainer,
-		store.getTitle,
-		menuState
-	    );
+	    var menuContainer = menuContainerFactory(container, helpURL),
+		menuContents = menuContentsFactory(
+		    menuContainer,
+		    store.getTitle,
+		    menuState
+		);
 	    
 	    var standardButtons = standardButtonFactory(
 		buttonSpec,
@@ -80,13 +79,12 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 	    );
 	    
 	    return {
+		container: menuContainer,
+		contents: menuContents,
+		
 		standardButtons: standardButtons,
-		setButtons: menu.setButtons
+		setButtons: menuContents.setButtons
 	    };
-	},
-	
-	menu: function() {
-	    return menu;
 	}
     };
 };
