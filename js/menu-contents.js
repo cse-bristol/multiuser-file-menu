@@ -2,8 +2,7 @@
 
 /*global module, require*/
 
-var d3 = require("d3"),
-    epsilon = 0.0001;
+var d3 = require("d3");
 
 /*
  Controls which buttons are currently hidden or displayed within the menu.
