@@ -2,15 +2,12 @@
 
 /*global module, require*/
 
-var matchNone = /(?!)/,
-    matchEmpty = /$^/,
-
-    /*
-     Disabled means the button is not clickable.
-     Ready means the button may be cliced.
-     Active means the button has been clicked. It may be showing a search, a dialogue, or a sub-menu.
-     */
-    disabled = "disabled",
+/*
+ Disabled means the button is not clickable.
+ Ready means the button may be cliced.
+ Active means the button has been clicked. It may be showing a search, a dialogue, or a sub-menu.
+ */
+var disabled = "disabled",
     ready = 'ready',
     active = "active";
 
@@ -110,7 +107,7 @@ module.exports = function(defaultCollection) {
 	    } else if (typeof(options.element) !== 'string') {
 		throw new Error("If element is specified, it must be a string which is the name of an HTML element, was " + options.element);
 	    }
-		
+	    
 
 	    if (options.hooks === undefined) {
 		options.hooks = function() {
