@@ -68,8 +68,6 @@ module.exports = function(defaultCollection) {
     };
 
     var m =  {
-	matchEmpty: matchEmpty,
-
 	/*
 	 text is required, and should be a string. It's the text which will be displayed on the button.
 
