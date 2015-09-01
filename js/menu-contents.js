@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+    epsilon = 0.0001;
 
 /*
  Controls which buttons are currently hidden or displayed within the menu.
@@ -79,7 +80,7 @@ module.exports = function(menuContainer, getTitle, menuState) {
 			.datum(spec)
 			.classed("menu-item", true)
 			.attr("id", function(d, i) {
-			    return "file-menu-" + spec.text;
+			    return "file-menu-" + spec.text.replace(" ", "-");
 			})
 	    		.text(function(d, i) {
 			    return spec.text;
