@@ -1,7 +1,8 @@
 #menu {
     color: white;
-    font-size: large;
-    font-family: monospace;
+	font-family: 'fira_sansbook';
+	font-size: 14px;
+	z-index: 1;
     cursor: default;
 
     position: absolute;
@@ -10,7 +11,7 @@
     width: 100%;
     
     pointer-events: none;
-    
+
     /* Cross-browser disable text selection. */
     user-select: none;
     -webkit-touch-callout: none;
@@ -27,10 +28,17 @@
 }
 
 .menu-item {
-    padding: 0.5em 0.5em 0.5em 2.5em;
+	padding: 15px 25px;
     margin: 0;
     text-decoration: none;
     pointer-events: auto;
+	line-height: 1;
+	height: 14px;
+	-webkit-transition: color .1s linear;
+	-moz-transition: color .1s linear;
+	-o-transition: color .1s linear;
+	-ms-transition: color .1s linear;
+	transition: color .1s linear;
 }
 
 .menu-item.disabled {
@@ -46,7 +54,8 @@
 #menu-bar .menu-item {
     text-align: right;
     display: inline-block;
-    background-color: slategray;
+	background-color: #282828;
+	color: white;
     cursor: pointer;
     vertical-align: top;
 }
@@ -70,7 +79,7 @@
     display: block;
     background-color: black;
     color: grey;
-    width: 9em;
+    width: auto;
 }
 
 #file-menu-contents .menu-item.ready {
@@ -100,6 +109,14 @@ Needed since z-index does not appear to work with css transitions.
     top:-50em;
     transition: top 0.3s;
     position: relative;
+	width: 200px; /* check this with Glenn */
+	/*
+		-webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+		-moz-box-shadow:    0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+		box-shadow:         0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+	*/
+	background-color: black;
+	padding: 10px 0 20px 0;
 }
 
 #file-menu-contents.active {
@@ -122,7 +139,7 @@ Needed since z-index does not appear to work with css transitions.
     font-size: large;
     font-family: helvetica;
     display: block;
-    background-color: slategray;
+	background-color: #282828;
     padding: 1em;
     width: 13em;
     position: absolute;
@@ -173,30 +190,77 @@ Needed since z-index does not appear to work with css transitions.
     left: 9.5em;
     top: -2em;
     pointer-events: none;
+	left: 170px;
 }
 
 .sub-menu {
     position: absolute;
-    background-color: slategray;
+	background-color: #282828;
     color: white;
     left: -50em;
     transition: left 0.3s;
     pointer-events: auto;
     z-index: -1;
-    width: 15em;
+	width: 300px;
     overflow-x: hidden;
     overflow-y: auto;
     max-height: 20em;
     text-align: left;
+	padding: 25px 0;
 }
 
 .sub-menu.enabled {
     left: 0;
 }
 
-.current-version {
-    border: 1px solid red;
+
+.sub-menu .version-entry {
+	padding: 10px 25px 10px 60px;
+	position: relative;
 }
+
+.sub-menu .version-entry:hover {
+	color: #08b030;
+}
+
+.sub-menu .version-entry::before {
+	display: block;
+	content: '\2022'; /* disc bullet */
+	font-size: 80px;
+	position: absolute;
+	top: 15px;
+	left: 30px;
+	color: #999;
+	line-height: 0;
+}
+
+.sub-menu .version-entry.current-version {
+	color: #08b030;
+	border: 0;
+}
+
+.sub-menu .version-entry.current-version::before {
+	color: #08b030;
+}
+
+.sub-menu .version-entry.current-version::after {
+	display: block;
+	content: '\0030'; /* tick */
+	font-size: 12px;
+	position: absolute;
+	top: 16px;
+	left: 37px;
+	color: white;
+	line-height: 0;
+	font-family: 'steep';
+	font-style: normal;
+	font-weight: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+
+
 
 /*
 .modal-wrapper and its 'before:' pseudo-element are used to vertically centre the dialogue.
@@ -227,41 +291,193 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 }
 
 .modal {
-    width: 20em;
+	border: 1px solid #ccc;
+	padding: 30px;
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow:    0px 2px 8px 0px rgba(0, 0, 0, 0.4);
+	box-shadow:         0px 2px 8px 0px rgba(0, 0, 0, 0.4);
+	width: 480px;
     margin: auto;
     display: inline-block;
     vertical-align: middle;
-    border: 1px solid black;
     text-align: left;
     background-color: white;
 }
 
-.comment label {
-    cursor: pointer;
-    text-decoration: underline;
-    color: grey;
-    vertical-align: top;
+.modal h4 {
+	font-family: 'fira_sansregular';
+	font-size: 18px;
+	margin: 0 0 1em 0;
 }
 
-.comment.expanded label {
-    color: black;
-}
-
-.comment textarea {
-    display: none;    
-}
-
-.comment.expanded textarea {
-    display: inline;
-}
-
-.dialogue-action {
-    float: right;
-    background: green;
-    cursor: pointer;
-    padding: 0.5em;
+.modal label {
+	font-family: 'fira_sansregular';
+	display: block;
+	width: 35%;
+	float: left;
+	clear: both;
+	font-size: 14px;
+	padding: 7px 0;
 }
 
 .option-placeholder {
     display: none;
 }
+
+.modal input[type="text"],
+.modal select,
+.modal textarea {
+	font-family: 'fira_sansbook';
+	font-size: 14px;
+	padding: 6px 10px;
+	border: 1px solid #ccc;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow:    0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+	box-shadow:         0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+	margin-bottom: 15px;
+	width: 65%;
+	box-sizing: border-box;
+}
+
+.modal input[type="text"],
+.modal select {
+	display: block;
+}
+
+.modal textarea {
+	height: 100px;
+}
+
+.modal .dialogue-action {
+	background-color: #d6eec7;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+	-moz-box-shadow:    0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+	box-shadow:         0px 2px 2px 0px rgba(0, 0, 0, 0.4);
+	font-family: 'fira_sanssemibold';
+	font-size: 14px;
+	padding: 10px 25px;
+	line-height: 1;
+	-webkit-transition: background-color .2s linear;
+	-moz-transition: background-color .2s linear;
+	-o-transition: background-color .2s linear;
+	-ms-transition: background-color .2s linear;
+	transition: background-color .2s linear;
+	float: right;
+    cursor: pointer;
+}
+
+.modal .dialogue-action:hover {
+	background-color: #08b030;
+}
+
+.modal .dialogue-action::before {content:'\0076'; color:#333;}
+
+.modal fieldset {
+	border: 0;
+	padding: 0;
+	margin-bottom: 15px;
+}
+
+.modal .comment label {
+	font-family: 'fira_sansbook';
+	text-decoration: none;
+	color: #282828;
+    cursor: pointer;
+    text-decoration: underline;
+    vertical-align: top;
+}
+
+.modal .comment label::after {
+	content: '\02c7';
+	display: inline-block;
+	font-size: 20px;
+	text-decoration: none;
+	margin-left: 10px;
+
+}
+
+.modal .comment.expanded label::after {
+	content: '\02c6';
+}
+
+.modal .comment textarea {
+    display: none;    
+}
+
+.modal .comment.expanded textarea {
+    display: inline;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* additional menu styling by 375 */
+
+#file-menu::before,
+#file-menu-contents .menu-item::before,
+.modal .dialogue-action::before {
+	display: inline-block;
+	font-family: 'steep';
+	font-style: normal;
+	font-weight: normal;
+	font-size: 16px;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+	margin-right: 10px;
+	margin-top: 1px;
+	color: #ccc;
+	-webkit-transition: color .1s linear;
+	-moz-transition: color .1s linear;
+	-o-transition: color .1s linear;
+	-ms-transition: color .1s linear;
+	transition: color .1s linear;
+}
+
+#file-menu:hover::before,
+#file-menu.active::before,
+#file-menu-contents .menu-item:hover::before {
+	color: #08b030;
+}
+
+
+#file-menu::before {content:'\0069';}
+#file-menu-New::before {content:'\006E';}
+#file-menu-Open::before {content:'\006F';}
+#file-menu-Save::before {content:'\0076';}
+#file-menu-Save-As::before {content:'\0077';}
+#file-menu-Auto::before {content:'\004F';}
+#file-menu-Set-Viewpoint::before {content:'\0079';}
+#file-menu-History::before {content:'\0062';}
+#file-menu-Insert::before {content:'\0063';}
+#file-menu-Export::before {content:'\0063';}
+#file-menu-Delete::before {content:'\0053';}
+#file-menu-Exit::before {content:'\0050';}
+#offline-indicator::before {content:'\004F';}
+
+
+#file-menu:hover,
+#file-menu-contents .menu-item.ready:hover,
+a#help:hover,
+#file-menu.active {
+	color: #08b030;
+	background-color: black;
+}
+
+
+
+
+
+
