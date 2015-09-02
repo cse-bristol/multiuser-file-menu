@@ -453,7 +453,6 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 }
 
 
-#file-menu::before {content:'\0069';}
 #file-menu-New::before {content:'\006E';}
 #file-menu-Open::before {content:'\006F';}
 #file-menu-Save::before {content:'\0076';}
