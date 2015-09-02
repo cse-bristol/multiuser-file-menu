@@ -1,5 +1,15 @@
-.PHONY: watch build clean
+.PHONY: build npm js css clean tests watch;
 
-build: ; npm install; mkdir -p bin; browserify -d demo.js -o bin/demo.js; browserify -d iframe-noscroll-demo.js -o bin/iframe-noscroll-demo.js;
-watch: ; mkdir -p bin; watchify -d demo.js -o bin/demo.js;
-clean: ; rm -rf ./bin/*
+build: js css;
+
+js: npm bin; browserify -d demo.js -o bin/demo.js;
+bin: ; mkdir -p bin;
+npm: ; npm install;
+
+css: bin; cat css/* > bin/style.css;
+
+tests: ; browserify -d iframe-noscroll-demo.js -o bin/iframe-noscroll-demo.js;
+
+clean: ; rm -rf bin;
+
+watch: bin; mkdir -p bin; watchify -d demo.js -o bin/demo.js & catw css/* -o bin/style.css -v;

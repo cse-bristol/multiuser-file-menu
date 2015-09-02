@@ -16,6 +16,11 @@
 	"css": "css"
     },
 
+    "devDependencies": {
+	"browserify": "5.9.1",
+	"catw": "1.0.1"
+    },
+
     "dependencies": {
 	"share": "0.7.3",
 	"lodash": "2.4.1",
