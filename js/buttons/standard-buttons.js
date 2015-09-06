@@ -31,7 +31,7 @@ var d3 = require("d3"),
 
  Keeps track of the document title, and whether or not it is a temporary title.
  */
-module.exports = function(spec, store, backendSearch, menuContainer, collection, friendlyName) {
+module.exports = function(spec, store, backendSearch, getProjectsList, menuContainer, collection, friendlyName) {
     var searchProcess = function(resultFunction, options) {
 	return searchFactory(backendSearch, store.getTitle, collection, resultFunction, options);
     },
@@ -102,7 +102,7 @@ module.exports = function(spec, store, backendSearch, menuContainer, collection,
 	    {}
 	),
 	    
-	saveAsButton = saveAsButtonFactory(store, spec, menuContainer.hide, friendlyName),
+	saveAsButton = saveAsButtonFactory(store, spec, menuContainer.hide, friendlyName, getProjectsList),
 	autosaveButton = autosaveButtonFactory(store, spec.button, menuContainer.menuBar),
 	historyButton = historyButtonFactory(store, spec.button),
 	deleteButton = deleteButtonFactory(store, spec.button, menuContainer.hide),

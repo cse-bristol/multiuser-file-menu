@@ -9,6 +9,7 @@ var _ = require("lodash"),
     helpers = require("./helpers.js"),
     isNum = helpers.isNum,
     callbacks = helpers.callbackHandler,
+    projectsListFactory = require("./projects-list.js"),
 
     connected = "connected",
     connecting = "connecting",
@@ -80,6 +81,8 @@ module.exports = function(maintainConnection, url) {
 	isDown = function() {
 	    return !connection || connection.state === stopped;
 	},
+
+	projectsList = projectsListFactory(url),
 
 	m = {
 	    search: function(coll, text, callback, errback) {
@@ -161,6 +164,10 @@ module.exports = function(maintainConnection, url) {
 			}
 		    }
 		);
+	    },
+
+	    getProjectsList: function() {
+		return projectsList.get();
 	    },
 
 	    deleteDoc: function(coll, name) {

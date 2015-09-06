@@ -15,7 +15,7 @@ var modalDialogueFactory = require("./processes/modal-dialogue.js"),
 	standalone: true
     }; 
 
-module.exports = function(store, spec, closeFileMenu, friendlyName) {
+module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsList) {
     var modalDialogueProcess = modalDialogueFactory(closeFileMenu),
 
 	capitalizeFirst = function(str) {
@@ -66,7 +66,7 @@ module.exports = function(store, spec, closeFileMenu, friendlyName) {
 		    .attr("selected", "selected"),
 
 		projectOptions = projectSelect.selectAll("option.project-choice")
-		    .data(["Dummy Project"]);
+		    .data(getProjectsList());
 
 	    projectOptions.exit().remove();
 	    projectOptions.enter().append("option")

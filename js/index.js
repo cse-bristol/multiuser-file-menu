@@ -73,6 +73,7 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 		buttonSpec,
 		store,
 		backend.search,
+		backend.getProjectsList,
 		menuContainer,
 		collection,
 		friendlyName
