@@ -16,9 +16,10 @@ var _ = require("lodash"),
 module.exports = function(maintainConnection, collection, backend, serialize, deserialize, getModel, setModelToObject, freshModel) {
     var title = null,
 	version = null,
+	project = null,
 	onNavigate = callbacks(),
 
-	navigate = function(newTitle, newVersion) {
+	navigate = function(newTitle, newVersion, newProject) {
 	    if (title === newTitle && version === newVersion) {
 		return;
 	    }
@@ -30,6 +31,8 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 	    } else {
 		version = newVersion;
 	    }
+
+	    project = newProject;
 
 	    onNavigate(title, version);
 	},
@@ -54,9 +57,9 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 	/*
 	 A helpful wrapper to make sure that we poke the version when we change the model.
 	 */
-	setModel = function(obj, name, version, latestAvailableVersion) {
+	setModel = function(obj, name, version, latestAvailableVersion, proj) {
 	    setModelToObject(obj);
-	    navigate(name, version);
+	    navigate(name, version, proj);
 	    versionCache.updateVersions(name, latestAvailableVersion);
 	},
 	
@@ -92,6 +95,10 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 
 	    var snapshot = doc.getSnapshot(),
 		serialized = serialize(model);
+
+	    if (project) {
+		serialized.project = project;
+	    }
 	    
 	    if (!snapshot) {
 		doc.create("json0", serialized, function() {
@@ -162,7 +169,8 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 			    deserialize(historical.doc),
 			    name,
 			    version,
-			    historical.latestV
+			    historical.latestV,
+			    historical.project
 			);
 		    },
 		    function(error) {
@@ -180,7 +188,8 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 			    deserialize(snapshot),
 			    name,
 			    null,
-			    null
+			    null,
+			    snapshot.project
 			);
 		    },
 		    function(error) {
@@ -200,7 +209,8 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 				deserialize(snapshot),
 				name,
 				null,
-				doc.version
+				doc.version,
+				snapshot.project
 			    );
 			    context = doc.createContext();
 			    
@@ -210,7 +220,8 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 				model,
 				name,
 				null,
-				doc.version
+				doc.version,
+				null
 			    );
 			}
 		    }
@@ -218,7 +229,11 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 	    }
 	},
 
-	saveDocument: function(name) {
+	saveDocument: function(name, newProject) {
+	    if (newProject) {
+		project = newProject;
+	    }
+	    
 	    if (doc && doc.name === name) {
 		saveDoc(getModel());
 		
@@ -227,7 +242,7 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 		    name,
 		    function(loaded) {
 			setDoc(loaded);
-			navigate(name, null);
+			navigate(name, null, project);
 			saveDoc(getModel());
 		    });
 	    }
@@ -280,6 +295,10 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 		    }
 		}
 	    );
+	},
+
+	getProject: function() {
+	    return project;
 	}
     };
 };

@@ -26,7 +26,13 @@ module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsL
 	"Save As",
 	null,
 	function(wasActive, buttonProcess, onProcessEnd) {
-	    var dialogue = modalDialogueProcess(wasActive, buttonProcess, onProcessEnd),
+	    var checkEnabled = function() {
+		var hasValues = projectSelect.node().value && titleInput.node().value;
+
+		action.classed("enabled", hasValues ? true : null);
+	    },
+
+		dialogue = modalDialogueProcess(wasActive, buttonProcess, onProcessEnd),
 
 		submit = function() {
 		    var title = titleInput.node().value;
@@ -34,8 +40,8 @@ module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsL
 		    if (!title) {
 			return;
 		    }
-		    
-		    store.saveDocument(title);
+
+		    store.saveDocument(title, projectSelect.node().value);
 
 		    // ToDo do something with this.
 		    // comment.getComment();
@@ -50,12 +56,16 @@ module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsL
 		    .text(capitalizeFirst(friendlyName) + " name"),
 
 		titleInput = dialogue.element.append("input")
-		    .attr("type", "text"),
+		    .attr("type", "text")
+		    .on("input", checkEnabled);
 
-		projectLabel = dialogue.element.append("label")
+	    titleInput.node().value = store.getTitle() || '';
+
+	    var projectLabel = dialogue.element.append("label")
 		    .text("Save to project"),
 
-		projectSelect = dialogue.element.append("select"),
+		projectSelect = dialogue.element.append("select")
+	    	    .on("change", checkEnabled),
 
 		projectOptionPlaceholder = projectSelect.append("option")
 		    .text("Project Name")
@@ -73,6 +83,15 @@ module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsL
 		.classed("project-choice", true)
 		.text(function(d, i) {
 		    return d;
+		})
+		.attr("selected", function(d, i) {
+		    if (store.getProject() === d) {
+			projectOptionPlaceholder.attr("selected", null);
+			
+			return true;
+		    } else {
+			return null;
+		    }
 		});
 
 	    var comment = commentFactory(dialogue.element, submit),
@@ -82,6 +101,8 @@ module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsL
 		    .attr("save-as-action", true)
 		    .on("click", submit)
 		    .text("Save");
+
+	    checkEnabled();
 
 	    return dialogue;
 	},
