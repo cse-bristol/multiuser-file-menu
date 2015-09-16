@@ -61,10 +61,6 @@ menu.setButtons(
 		    online: true,
 		    offline: false
 		},
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		},
 		search: {
 		    collection: coll,
 		    excludeTerms: spec.matchEmpty,
@@ -85,10 +81,6 @@ menu.setButtons(
 		// Noop
 	    },
 	    {
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		},
 		hooks: function(button) {
 		    menuModule.store.onNavigate(function(newTitle, newVersion) {
 			button.text("Title: " + newTitle);
@@ -113,12 +105,7 @@ menu.setButtons(
 		    .style("bottom", 0);
 		
 	    },
-	    {
-		embeddedStandalone: {
-		    embedded: false,
-		    standalone: true
-		}
-	    }
+	    {}
 	),
 
 	spec.button(
@@ -140,12 +127,7 @@ menu.setButtons(
 
 		menuModule.queryString.toURL();
 	    },
-	    {
-		embeddedStandalone: {
-		    embedded: true,
-		    standalone: true
-		}
-	    }
+	    {}
 	),
 
 	spec.button(

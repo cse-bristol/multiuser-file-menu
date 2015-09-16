@@ -17,12 +17,7 @@ var d3 = require("d3"),
     online = {
 	online: true,
 	offline: false
-    },
-
-    standalone = {
-	embedded: false,
-	standalone: true
-    }; 
+    };
 
 /*
  Provides a set of pre-specified buttons: New, Open, Save as, and Delete.
@@ -47,7 +42,6 @@ module.exports = function(spec, store, backendSearch, getProjectsList, menuConta
 		    online: false,
 		    offline: true
 		},
-		embeddedStandalone: standalone,
 		hooks: function(el) {
 		    el.attr("id", "offline-indicator")
 			.classed("active", true);
@@ -59,9 +53,7 @@ module.exports = function(spec, store, backendSearch, getProjectsList, menuConta
 	    "New",
 	    null,
 	    store.newDocument,
-	    {
-		embeddedStandalone: standalone
-	    }
+	    {}
 	),
 
 	openButton = spec.button(
@@ -71,8 +63,7 @@ module.exports = function(spec, store, backendSearch, getProjectsList, menuConta
 	    },
 	    searchProcess(store.openDocument, {}),
 	    {
-		onlineOffline: online,
-		embeddedStandalone: standalone
+		onlineOffline: online
 	    }
 	),
 

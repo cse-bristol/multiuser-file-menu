@@ -21,6 +21,10 @@
     -ms-user-select: none;
 }
 
+.embedded #menu {
+    display: none;
+}
+
 @media print {
     #menu {
     	display: none !important;

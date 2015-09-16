@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var iframeNoScroll = require("./iframe-noscroll"),
+var d3 = require("d3"),
+    iframeNoScroll = require("./iframe-noscroll"),
     backendFactory = require("./backend.js"),
     storeFactory = require("./store.js"),
     queryStringFactory = require("./query-string.js"),
@@ -31,6 +32,8 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 
     if (embedded) {
 	iframeNoScroll();
+
+	d3.select('body').classed('embedded', true);
     }
     
     var backend = backendFactory(!embedded, url ? url : defaultUrl),
