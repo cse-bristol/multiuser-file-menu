@@ -414,6 +414,14 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 	background-color: #08b030;
 }
 
+.modal .dialogue-action {
+    pointer-events: none;
+}
+
+.modal .dialogue-action.enabled {
+    pointer-events: all;
+}
+
 .modal .dialogue-action::before {content:'\0076'; color:#333;}
 
 .modal fieldset {
