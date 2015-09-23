@@ -164,7 +164,7 @@ Needed since z-index does not appear to work with css transitions.
     white-space: nowrap;
 }
 
-.search-result {
+#search-results .search-result {
 	padding: 10px 25px 10px 50px;
 	position: relative;
     cursor: pointer;
@@ -172,7 +172,7 @@ Needed since z-index does not appear to work with css transitions.
     color: #ccc;
 }
 
-.search-result::before {
+#search-results .search-result::before {
 	display: block;
 	content: '\2022'; /* disc bullet */
 	font-size: 80px;
@@ -183,15 +183,15 @@ Needed since z-index does not appear to work with css transitions.
 	line-height: 0;
 }
 
-.search-result:hover {
+#search-results .search-result:hover {
 	color: #08b030;
 }
 
-.search-result-current-page::before {
+#search-results .search-result-current-page::before {
 	color: #08b030;
 }
 
-.search-result-current-page::after {
+#search-results .search-result-current-page::after {
 	display: block;
 	content: '\0030'; /* tick */
 	font-size: 12px;
@@ -208,11 +208,11 @@ Needed since z-index does not appear to work with css transitions.
 	color: white;
 }
 
-.search-result-fabricated {
+#search-results .search-result-fabricated {
     background-color: pink;
 }
 
-.highlighted-result {
+#search-results .highlighted-result {
 	color: white;
 }
 
