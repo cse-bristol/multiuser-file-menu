@@ -200,7 +200,7 @@ Needed since z-index does not appear to work with css transitions.
 	left: 27px;
 	color: white;
 	line-height: 0;
-	font-family: 'steep';
+	font-family: 'steep-icons';
 	font-style: normal;
 	font-weight: normal;
 	-webkit-font-smoothing: antialiased;
@@ -290,7 +290,7 @@ Needed since z-index does not appear to work with css transitions.
 	left: 37px;
 	color: white;
 	line-height: 0;
-	font-family: 'steep';
+	font-family: 'steep-icons';
 	font-style: normal;
 	font-weight: normal;
 	-webkit-font-smoothing: antialiased;
@@ -476,7 +476,7 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 #file-menu-contents .menu-item::before,
 .modal .dialogue-action::before {
 	display: inline-block;
-	font-family: 'steep';
+	font-family: 'steep-icons';
 	font-style: normal;
 	font-weight: normal;
 	font-size: 16px;
