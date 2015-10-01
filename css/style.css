@@ -520,3 +520,9 @@ a#help:hover,
 	background-color: black;
 }
 
+#file-menu-Exit {
+    /*
+We never decided what the exit button would actually do. I'm hiding it until we decide on some behaviour.
+     */
+    display: none !important;
+}
