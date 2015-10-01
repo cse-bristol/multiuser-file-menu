@@ -13,10 +13,6 @@ var d3 = require("d3"),
     buttonSpecFactory = require("./buttons/specify-buttons.js"),
     standardButtonFactory = require("./buttons/standard-buttons.js"),
 
-    modalDialogueProcess = require("./buttons/processes/modal-dialogue.js"),
-    searchProcess = require("./buttons/processes/search.js"),
-    submenuProcess = require("./buttons/processes/sub-menu.js"),
-
     defaultUrl = function() {
 	var a = document.createElement("a");
 	a.href = "/";
@@ -68,11 +64,6 @@ module.exports = function(collection, friendlyName, serialize, deserialize, getM
 	store: store,
 	queryString: queryString,
 	spec: buttonSpec,
-	buttonProcesses: {
-	    modalDialogue: modalDialogueProcess,
-	    subMenu: submenuProcess,
-	    search: searchProcess
-	},
 	buildMenu: function(container) {
 	    var menuContainer = menuContainerFactory(container, helpURL),
 		menuContents = menuContentsFactory(
