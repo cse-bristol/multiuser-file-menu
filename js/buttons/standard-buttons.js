@@ -142,6 +142,8 @@ module.exports = function(spec, store, backendSearch, getProjectsList, menuConta
 	    }
 	},
 
+	search: searchProcess,
+
 	ordered: order
     };
 };
