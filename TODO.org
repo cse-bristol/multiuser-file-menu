@@ -1,0 +1,17 @@
+* History Improvements
+** Undelete
+There isn't a good way to undelete. At the moment it involves:
+ 1. Save a document with the same name as what you want to recover.
+ 2. Go to a past version of that document.
+ 3. 'Save As' to recover that past version.
+
+** Change Notifications
+If someone else makes changes, we'd like a notification, with options:
+ + Revert (refresh)
+ + Merge
+ + Overwrite
+
+** Metadata
+We have the option to enter a commit message on 'Save As' and 'Delete'.
+
+We should save this and display it somewhere.
