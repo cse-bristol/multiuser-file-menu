@@ -107,10 +107,10 @@ module.exports = function(collection, store) {
 	    version = store.getVersion();
 
 	if (name) {
-	    newURL.query.name = encodeURIComponent(name);
+	    newURL.query.name = name;
 
 	    if (isNum(version)) {
-		newURL.query.v = encodeURIComponent(version);
+		newURL.query.v = version;
 	    }
 	}
 
