@@ -84,13 +84,21 @@ module.exports = function(maintainConnection, url) {
 
 	projectsList = projectsListFactory(url),
 
+	handleError = function(error, errback) {
+	    if (errback) {
+		errback(error.response);
+	    } else {
+		console.error(error.response);
+	    }
+	},
+
 	m = {
 	    search: function(coll, text, callback, errback) {
 		d3.json(
 		    [url, "search", coll].join("/") + "?q=" + text,
 		    function(error, results) {
 			if (error) {
-			    errback(error);
+			    handleError(error, errback);
 			} else {
 			    callback(_.pluck(results, "name"));
 			}
@@ -122,7 +130,8 @@ module.exports = function(maintainConnection, url) {
 		    [url, "current", coll, name].join("/"),
 		    function(error, json) {
 			if (error) {
-			    errback(error.response);
+			    handleError(error, errback);
+
 			} else if (json.data) {
 			    callback(json.data);
 			}
@@ -145,7 +154,8 @@ module.exports = function(maintainConnection, url) {
 		    [url, "history", coll, name, version].join("/"),
 		    function(error, json) {
 			if (error) {
-			    errback(error.response);
+			    handleError(error, errback);
+
 			} else {
 			    callback(json);
 			}
@@ -158,7 +168,8 @@ module.exports = function(maintainConnection, url) {
 		    [url, "versions", coll, name, versionsFrom].join("/"),
 		    function(error, json) {
 			if (error) {
-			    errback(error.response);
+			    handleError(error, errback);
+			    
 			} else {
 			    callback(json);
 			}

@@ -58,9 +58,9 @@ module.exports = function(maintainConnection, collection, backend, serialize, de
 	 A helpful wrapper to make sure that we poke the version when we change the model.
 	 */
 	setModel = function(obj, name, version, latestAvailableVersion, proj) {
-	    setModelToObject(obj);
 	    navigate(name, version, proj);
 	    versionCache.updateVersions(name, latestAvailableVersion);
+	    setModelToObject(obj);
 	},
 	
 	onOp = callbacks(),

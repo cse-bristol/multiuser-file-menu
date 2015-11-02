@@ -32,7 +32,7 @@ module.exports = function(defaultCollection) {
     /*
      states should be an object.
 
-     We are checking for 3 properties: onlineOffline, readWriteSync and embeddedStandalone. Each of these represents a dimension of the state-space of the menu. If any are missing, the button will be displayed regardless of the state of the dimension.
+     We are checking for 2 properties: onlineOffline and readWriteSync. Each of these represents a dimension of the state-space of the menu. If any are missing, the button will be displayed regardless of the state of the dimension.
 
      Each of these should be a subobject containing true/false sub-properties detailing which states the button should display in.
      */    
@@ -55,15 +55,6 @@ module.exports = function(defaultCollection) {
 	    };
 	} else {
 	    checkState(states.readWriteSync, ['read', 'write', 'sync']);
-	}
-
-	if (!states.embeddedStandalone) {
-	    states.embeddedStandalone = {
-		embedded: true,
-		standalone: true
-	    };
-	} else {
-	    checkState(states.embeddedStandalone, ['embedded', 'standalone']);
 	}
     };
 
@@ -125,7 +116,6 @@ module.exports = function(defaultCollection) {
 		    if (
 			options.onlineOffline[menuState.online() ? "online" : "offline"]
 			    && options.readWriteSync[menuState.readWriteSync()]
-			    && options.embeddedStandalone[menuState.embedded() ? "embedded" : "standalone"]
 			    && options.extraDisplayCondition()
 		    ) {
 			if (isActive && isActive(menuState, ownsCurrentProcess)) {

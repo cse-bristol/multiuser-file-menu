@@ -21,6 +21,10 @@
     -ms-user-select: none;
 }
 
+.embedded #menu {
+    display: none;
+}
+
 @media print {
     #menu {
     	display: none !important;
@@ -136,19 +140,23 @@ Needed since z-index does not appear to work with css transitions.
 }
 
 #search-control {
-    font-size: large;
-    font-family: helvetica;
     display: block;
 	background-color: #282828;
-    padding: 1em;
-    width: 13em;
     position: absolute;
+	padding-bottom: 20px;
 }
 
 #search {
-    font-size: large;
-    margin-left: 0.1em;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin: 25px 25px 10px 25px;
     z-index: 999;
+	font-size: 14px;
+	padding: 6px 8px;
+	border: 0;
+	width: 200px;
+	-webkit-appearance: none;
 }
 
 #search-results {
@@ -156,27 +164,56 @@ Needed since z-index does not appear to work with css transitions.
     white-space: nowrap;
 }
 
-.search-result {
-    padding: 0.2em;
+#search-results .search-result {
+	padding: 10px 25px 10px 50px;
+	position: relative;
     cursor: pointer;
     text-align: left;
-    color: white;
+    color: #ccc;
 }
 
-.search-result:hover {
-    text-decoration: underline;
+#search-results .search-result::before {
+	display: block;
+	content: '\2022'; /* disc bullet */
+	font-size: 80px;
+	position: absolute;
+	top: 15px;
+	left: 20px;
+	color: #999;
+	line-height: 0;
 }
 
-.search-result-current-page {
-    background-color: powderblue;
+#search-results .search-result:hover {
+	color: #08b030;
 }
 
-.search-result-fabricated {
+#search-results .search-result-current-page::before {
+	color: #08b030;
+}
+
+#search-results .search-result-current-page::after {
+	display: block;
+	content: '\0030'; /* tick */
+	font-size: 12px;
+	position: absolute;
+	top: 16px;
+	left: 27px;
+	color: white;
+	line-height: 0;
+	font-family: 'steep-icons';
+	font-style: normal;
+	font-weight: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: white;
+}
+
+#search-results .search-result-fabricated {
     background-color: pink;
 }
 
-.highlighted-result {
-    border: 1px dashed blue;
+#search-results .highlighted-result {
+	color: white;
 }
 
 #offline-indicator {
@@ -217,6 +254,7 @@ Needed since z-index does not appear to work with css transitions.
 .sub-menu .version-entry {
 	padding: 10px 25px 10px 60px;
 	position: relative;
+	color: #ccc;
 }
 
 .sub-menu .version-entry:hover {
@@ -235,7 +273,7 @@ Needed since z-index does not appear to work with css transitions.
 }
 
 .sub-menu .version-entry.current-version {
-	color: #08b030;
+	color: white;
 	border: 0;
 }
 
@@ -252,7 +290,7 @@ Needed since z-index does not appear to work with css transitions.
 	left: 37px;
 	color: white;
 	line-height: 0;
-	font-family: 'steep';
+	font-family: 'steep-icons';
 	font-style: normal;
 	font-weight: normal;
 	-webkit-font-smoothing: antialiased;
@@ -376,6 +414,14 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 	background-color: #08b030;
 }
 
+.modal .dialogue-action {
+    pointer-events: none;
+}
+
+.modal .dialogue-action.enabled {
+    pointer-events: all;
+}
+
 .modal .dialogue-action::before {content:'\0076'; color:#333;}
 
 .modal fieldset {
@@ -430,14 +476,13 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 #file-menu-contents .menu-item::before,
 .modal .dialogue-action::before {
 	display: inline-block;
-	font-family: 'steep';
+	font-family: 'steep-icons';
 	font-style: normal;
 	font-weight: normal;
 	font-size: 16px;
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
 	margin-right: 10px;
-	margin-top: 1px;
 	color: #ccc;
 	-webkit-transition: color .1s linear;
 	-moz-transition: color .1s linear;
@@ -475,8 +520,9 @@ a#help:hover,
 	background-color: black;
 }
 
-
-
-
-
-
+#file-menu-Exit {
+    /*
+We never decided what the exit button would actually do. I'm hiding it until we decide on some behaviour.
+     */
+    display: none !important;
+}

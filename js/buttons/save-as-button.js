@@ -8,12 +8,7 @@ var modalDialogueFactory = require("./processes/modal-dialogue.js"),
     online = {
 	online: true,
 	offline: false
-    },
-
-    standalone = {
-	embedded: false,
-	standalone: true
-    }; 
+    };
 
 module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsList) {
     var modalDialogueProcess = modalDialogueFactory(closeFileMenu),
@@ -107,8 +102,7 @@ module.exports = function(store, spec, closeFileMenu, friendlyName, getProjectsL
 	    return dialogue;
 	},
 	{
-	    onlineOffline: online,
-	    embeddedStandalone: standalone
+	    onlineOffline: online
 	}
     );
 };
