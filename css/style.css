@@ -506,7 +506,7 @@ This is because Internet Explorer 10 and below do not support Flexbox.
 #file-menu-Set-Viewpoint::before {content:'\0079';}
 #file-menu-History::before {content:'\0062';}
 #file-menu-Insert::before {content:'\0063';}
-#file-menu-Export::before {content:'\0063';}
+#file-menu-Export::before {content:'\0036';}
 #file-menu-Delete::before {content:'\0053';}
 #file-menu-Exit::before {content:'\0050';}
 #offline-indicator::before {content:'\004F';}
