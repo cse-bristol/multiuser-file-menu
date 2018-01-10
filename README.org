@@ -1,6 +1,8 @@
 * Multi User File Menu
 Provides some UI controls and a search box for managing documents. These controls resemble the familiar controls you might find in a file menu.
 
+Also allows for sharing of documents as URLs.
+
 Allows for retrieval of historical versions of documents.
 
 Note that there is no directory abstraction - only a flat space full of file names.
@@ -17,7 +19,8 @@ Our Javascript files our arranged as node.js modules, and we use the 'browserify
 
 Install [[http://nodejs.org/][Node JS]]. On a Debian-based system, I'd recommend using this PPA:
 #+BEGIN_SRC sh
-sudo add-apt-repository ppa:chris-lea/node.js 
+## This is probably really obsolete now!
+sudo add-apt-repository ppa:chris-lea/node.js
 sudo aptitude update
 sudo aptitude install -y nodejs
 #+END_SRC
